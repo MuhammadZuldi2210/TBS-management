@@ -1,0 +1,110 @@
+// import dio client
+import '../../../core/api/dio_client.dart';
+
+// Class service untuk mengelola data user
+class UserManagementService {
+  // ==============================
+  // GET ALL USERS
+  // ==============================
+
+  Future<List<dynamic>> getUsers() async {
+    final response = await DioClient.dio.get("/users");
+
+    return response.data["data"];
+  }
+
+  // ==============================
+  // CREATE USER
+  // ==============================
+
+  Future<void> createUser({
+    required String name,
+    required String email,
+    required String password,
+    required String phone,
+  }) async {
+    await DioClient.dio.post(
+      "/users",
+      data: {
+        "name": name,
+        "email": email,
+        "password": password,
+        "phone": phone,
+      },
+    );
+  }
+
+  // ==============================
+  // UPDATE USER
+  // ==============================
+
+  Future<void> updateUser(String userId, Map<String, dynamic> data) async {
+    await DioClient.dio.put("/users/$userId", data: data);
+  }
+
+  // ==============================
+  // TRANSFER USER
+  // ==============================
+
+  Future<void> transferUser(String userId, String newOwnerId) async {
+    await DioClient.dio.patch(
+      "/users/$userId/transfer",
+
+      data: {"newOwnerId": newOwnerId},
+    );
+  }
+
+  // ==============================
+  // NONAKTIFKAN USER
+  // ==============================
+
+  Future<void> deactivateUser(String userId) async {
+    await DioClient.dio.patch("/users/$userId/deactivate");
+  }
+
+  // ==============================
+  // AKTIFKAN USER
+  // ==============================
+
+  Future<void> activateUser(String userId) async {
+    await DioClient.dio.put("/users/activate/$userId");
+  }
+
+  // ==============================
+  // SUSPEND USER
+  // ==============================
+
+  Future<void> suspendUser(String userId, String reason) async {
+    await DioClient.dio.patch(
+      "/users/$userId/suspend",
+
+      data: {"reason": reason},
+    );
+  }
+
+  // ==============================
+  // AKTIFKAN SUSPEND USER
+  // ==============================
+
+  Future<void> activateSuspendUser(String userId) async {
+    await DioClient.dio.patch("/users/$userId/activate-suspend");
+  }
+
+  // ==============================
+  // PERPANJANG MODUL USER
+  // ==============================
+
+  Future<void> extendModule(String userId, int days) async {
+    await DioClient.dio.patch("/users/$userId/extend", data: {"days": days});
+  }
+
+  // ==============================
+  // GET MY USERS
+  // ==============================
+
+  Future<List<dynamic>> getMyUsers() async {
+    final response = await DioClient.dio.get("/users/my-users");
+
+    return response.data["data"];
+  }
+}

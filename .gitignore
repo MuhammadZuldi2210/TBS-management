@@ -1,0 +1,11 @@
+# Backend
+module backend/.env
+module backend/node_modules/
+
+# Flutter
+module_mobile/.dart_tool/
+module_mobile/build/
+module_mobile/.idea/
+
+# General
+*.log
