@@ -1,6 +1,7 @@
 # Backend
 module backend/.env
 module backend/node_modules/
+module backend/logs/
 
 # Flutter
 module_mobile/.dart_tool/
