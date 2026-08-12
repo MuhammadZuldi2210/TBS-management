@@ -57,11 +57,11 @@ class _LoginPageState extends State<LoginPage> {
 
             // title
             const Text(
-              "Welcome Back!",
+              "WELCOME TO TBS",
               style: TextStyle(
                 fontFamily: "Poppins",
                 color: Colors.white,
-                fontSize: 28,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 const Text(
-                  "Don't have an account?",
+                  "TBS Management System",
                   style: TextStyle(
                     color: Colors.white70,
                     fontFamily: "Poppins",
