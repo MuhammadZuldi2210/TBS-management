@@ -15,6 +15,7 @@ const {
   deactivateAdmin,
   getTransferOwners,
   suspendAdmin,
+  resetPassword,
 } = require("../controllers/adminController");
 
 // Import middleware authentication
@@ -155,6 +156,21 @@ router.patch(
 
   // Menjalankan controller activate admin
   activateAdmin,
+);
+
+// Endpoint untuk reset password admin
+router.put(
+  // Endpoint PUT /api/admins/:id/reset-password
+  "/:id/reset-password",
+
+  // Memastikan user sudah login
+  authMiddleware,
+
+  // Hanya super admin yang boleh reset password admin
+  authorize("super_admin"),
+
+  // Menjalankan controller reset password
+  resetPassword,
 );
 
 // Export router
