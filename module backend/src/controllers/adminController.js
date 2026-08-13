@@ -464,6 +464,70 @@ const updateAdmin = async (req, res) => {
 };
 
 // ==============================
+// RESET PASSWORD ADMIN
+// ==============================
+
+const resetPassword = async (req, res) => {
+  try {
+    // Hanya Super Admin yang boleh reset password Admin
+    if (req.user.role !== "super_admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Akses ditolak",
+      });
+    }
+
+    // Mengambil ID admin dari parameter URL
+    const { id } = req.params;
+
+    // Mencari admin
+    const admin = await User.findOne({
+      _id: id,
+      role: "admin_user",
+    });
+
+    // Jika admin tidak ditemukan
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin tidak ditemukan",
+      });
+    }
+
+    // ==========================================
+    // GENERATE PASSWORD BARU OTOMATIS
+    // ==========================================
+
+    const newPassword = Math.random().toString(36).slice(-8);
+
+    // Hash password baru
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Simpan password baru
+    admin.password = hashedPassword;
+
+    await admin.save();
+
+    // ==========================================
+    // RESPONSE
+    // ==========================================
+
+    return res.status(200).json({
+      success: true,
+      message: "Password admin berhasil direset",
+      password: newPassword,
+    });
+  } catch (error) {
+    console.log("RESET PASSWORD ADMIN ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
+// ==============================
 // ACTIVATE ADMIN
 // ==============================
 
@@ -682,12 +746,14 @@ const suspendAdmin = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   createAdmin,
   getListAdmin,
   getDetailAdmin,
   getAdminResellers,
   updateAdmin,
+  resetPassword,
   activateAdmin,
   deactivateAdmin,
   getTransferOwners,
