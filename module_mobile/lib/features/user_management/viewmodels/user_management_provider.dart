@@ -31,7 +31,7 @@ class UserManagementProvider extends ChangeNotifier {
   // GET USERS
   // ==========================
 
-  Future<void> getUsers() async {
+  Future<void> getUsers({int page = 1, int limit = 30}) async {
     isLoading = true;
 
     errorMessage = null;
@@ -39,7 +39,7 @@ class UserManagementProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      userList = await _userService.getUsers();
+      userList = await _userService.getUsers(page: page, limit: limit);
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -258,7 +258,7 @@ class UserManagementProvider extends ChangeNotifier {
   // GET MY USERS
   // ==========================
 
-  Future<void> getMyUsers() async {
+  Future<void> getMyUsers({int page = 1, int limit = 10}) async {
     isLoading = true;
 
     errorMessage = null;
@@ -266,7 +266,7 @@ class UserManagementProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      userList = await _userService.getMyUsers();
+      userList = await _userService.getMyUsers(page: page, limit: limit);
     } catch (e) {
       errorMessage = e.toString();
     }

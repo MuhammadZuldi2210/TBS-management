@@ -7,8 +7,11 @@ class UserManagementService {
   // GET ALL USERS
   // ==============================
 
-  Future<List<dynamic>> getUsers() async {
-    final response = await DioClient.dio.get("/users");
+  Future<List<dynamic>> getUsers({int page = 1, int limit = 10}) async {
+    final response = await DioClient.dio.get(
+      "/users",
+      queryParameters: {"page": page, "limit": limit},
+    );
 
     return response.data["data"];
   }
@@ -102,8 +105,11 @@ class UserManagementService {
   // GET MY USERS
   // ==============================
 
-  Future<List<dynamic>> getMyUsers() async {
-    final response = await DioClient.dio.get("/users/my-users");
+  Future<List<dynamic>> getMyUsers({int page = 1, int limit = 10}) async {
+    final response = await DioClient.dio.get(
+      "/users/my-users",
+      queryParameters: {"page": page, "limit": limit},
+    );
 
     return response.data["data"];
   }

@@ -38,8 +38,15 @@ class ResellerService {
   // GET USER RESELLER
   // ==============================
 
-  Future<List<dynamic>> getResellerUsers(String resellerId) async {
-    final response = await DioClient.dio.get("/resellers/$resellerId/users");
+  Future<List<dynamic>> getResellerUsers(
+    String resellerId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final response = await DioClient.dio.get(
+      "/resellers/$resellerId/users",
+      queryParameters: {"page": page, "limit": limit},
+    );
 
     return response.data["data"];
   }

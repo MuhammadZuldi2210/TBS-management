@@ -6,11 +6,23 @@ class TransactionService {
   // GET ALL TRANSACTIONS
   // ==================================
 
-  Future<List<dynamic>> getTransactions({String? type, String? status}) async {
+  // ==================================
+  // GET ALL TRANSACTIONS
+  // ==================================
+
+  Future<List<dynamic>> getTransactions({
+    String? type,
+    String? status,
+    int page = 1,
+    int limit = 10,
+  }) async {
     final response = await DioClient.dio.get(
       "/transactions",
-
       queryParameters: {
+        // pagination
+        "page": page,
+        "limit": limit,
+
         // filter jenis transaksi
         if (type != null) "type": type,
 
@@ -19,8 +31,7 @@ class TransactionService {
       },
     );
 
-    // tampilkan maksimal 20 transaksi agar ringan
-    return response.data["data"].take(20).toList();
+    return response.data["data"];
   }
 
   // ==================================

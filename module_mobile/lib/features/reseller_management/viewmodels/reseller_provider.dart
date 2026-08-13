@@ -100,7 +100,11 @@ class ResellerProvider extends ChangeNotifier {
   // GET USER RESELLER
   // ==============================
 
-  Future<void> getResellerUsers(String resellerId) async {
+  Future<void> getResellerUsers(
+    String resellerId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
       // mulai loading
       isLoading = true;
@@ -111,7 +115,11 @@ class ResellerProvider extends ChangeNotifier {
       notifyListeners();
 
       // ambil user reseller dari service
-      resellerUserList = await _resellerService.getResellerUsers(resellerId);
+      resellerUserList = await _resellerService.getResellerUsers(
+        resellerId,
+        page: page,
+        limit: limit,
+      );
     } catch (e) {
       // simpan error
       errorMessage = e.toString();

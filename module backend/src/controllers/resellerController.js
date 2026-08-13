@@ -487,6 +487,7 @@ const getResellerUsers = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Cek reseller
     const reseller = await User.findOne({
       _id: id,
       role: "reseller",
@@ -499,17 +500,35 @@ const getResellerUsers = async (req, res) => {
       });
     }
 
-    const users = await User.find({
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Filter user milik reseller
+    const filter = {
       role: "user",
       ownerId: id,
-    })
+    };
+
+    // Ambil user sesuai halaman
+    const users = await User.find(filter)
       .select("-password")
       .sort({
         createdAt: -1,
-      });
+      })
+      .skip(skip)
+      .limit(limit);
+
+    // Hitung total user
+    const total = await User.countDocuments(filter);
 
     return res.status(200).json({
       success: true,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
       data: users,
     });
   } catch (error) {

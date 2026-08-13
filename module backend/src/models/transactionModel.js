@@ -91,5 +91,28 @@ const transactionSchema = new mongoose.Schema(
   },
 );
 
+// ==========================================
+// INDEX MONGODB
+// ==========================================
+
+// Untuk transaksi milik actor
+transactionSchema.index({
+  actorId: 1,
+  createdAt: -1,
+});
+
+// Untuk request coin yang ditujukan kepada user
+transactionSchema.index({
+  requestTo: 1,
+  createdAt: -1,
+});
+
+// Untuk filter transaksi berdasarkan status/jenis
+transactionSchema.index({
+  type: 1,
+  status: 1,
+  createdAt: -1,
+});
+
 // Export model
 module.exports = mongoose.model("Transaction", transactionSchema);

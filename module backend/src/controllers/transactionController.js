@@ -31,13 +31,19 @@ const getTransactions = async (req, res) => {
     }
 
     // ===============================
+    // PAGINATION
+    // ===============================
+
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
+
+    const skip = (page - 1) * limit;
+
+    // ===============================
     // ROLE ACCESS
     // ===============================
 
-    // ===============================
     // SUPER ADMIN
-    // ===============================
-
     if (req.user.role === "super_admin") {
       filter.$or = [
         // Semua transaksi selain coin_purchase
@@ -56,9 +62,6 @@ const getTransactions = async (req, res) => {
     }
 
     // ADMIN
-    // Melihat:
-    // 1. Transaksi yang dia buat
-    // 2. Request coin yang ditujukan kepadanya
     else if (req.user.role === "admin_user") {
       filter.$or = [
         {
@@ -71,7 +74,6 @@ const getTransactions = async (req, res) => {
     }
 
     // RESELLER
-    // Hanya melihat transaksi miliknya
     else if (req.user.role === "reseller") {
       filter.actorId = req.user._id;
     }
@@ -85,8 +87,15 @@ const getTransactions = async (req, res) => {
     }
 
     // ===============================
-    // AMBIL TRANSAKSI
+    // HITUNG TOTAL
     // ===============================
+
+    const total = await Transaction.countDocuments(filter);
+
+    // ===============================
+    // AMBIL TRANSAKSI SESUAI HALAMAN
+    // ===============================
+
     const transactions = await Transaction.find(filter)
       .populate("userId", "name email phone")
       .populate("actorId", "name email role")
@@ -94,26 +103,27 @@ const getTransactions = async (req, res) => {
       .populate("approvedBy", "name role")
       .sort({
         createdAt: -1,
-      });
+      })
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json({
       success: true,
-
-      total: transactions.length,
-
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
       data: transactions,
     });
   } catch (error) {
-    console.log(error);
+    console.log("GET TRANSACTIONS ERROR:", error);
 
     return res.status(500).json({
       success: false,
-
       message: "Server Error",
     });
   }
 };
-
 // ======================================
 // DETAIL TRANSACTION
 // ======================================

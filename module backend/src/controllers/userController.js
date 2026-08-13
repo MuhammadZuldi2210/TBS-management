@@ -133,25 +133,39 @@ const getUsersByAdmin = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Ambil hanya user milik admin
-    const users = await User.find({
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Filter user milik admin
+    const filter = {
       role: "user",
       ownerId: id,
-    })
+    };
+
+    // Ambil user sesuai halaman
+    const users = await User.find(filter)
       .populate("ownerId", "name email role")
       .populate("createdBy", "name email role")
       .select("-password")
-      .sort({
-        createdAt: -1,
-      });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Hitung total user
+    const total = await User.countDocuments(filter);
 
     return res.status(200).json({
       success: true,
-      total: users.length,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
       data: users,
     });
   } catch (error) {
-    console.log(error);
+    console.log("GET USERS BY ADMIN ERROR:", error);
 
     return res.status(500).json({
       success: false,
@@ -165,14 +179,35 @@ const getUsersByAdmin = async (req, res) => {
 // ==========================================
 const getUsersByReseller = async (req, res) => {
   try {
-    // Ambil semua user milik reseller
-    const users = await User.find({
-      ownerId: req.params.id,
+    const { id } = req.params;
+
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Filter user milik reseller
+    const filter = {
+      ownerId: id,
       role: "user",
-    }).sort({ createdAt: -1 });
+    };
+
+    // Ambil user sesuai halaman
+    const users = await User.find(filter)
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Hitung total user
+    const total = await User.countDocuments(filter);
 
     res.status(200).json({
       success: true,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
       data: users,
     });
   } catch (error) {
@@ -190,20 +225,38 @@ const getMyUsers = async (req, res) => {
   try {
     console.log("LOGIN USER:", req.user._id);
     console.log("ROLE:", req.user.role);
-    const users = await User.find({
+
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Filter user milik user yang sedang login
+    const filter = {
       role: "user",
       ownerId: req.user._id,
-    })
+    };
+
+    // Ambil user sesuai halaman
+    const users = await User.find(filter)
       .populate("ownerId", "name email phone role")
       .populate("createdBy", "name email role")
       .select("-password")
       .sort({
         createdAt: -1,
-      });
+      })
+      .skip(skip)
+      .limit(limit);
+
+    // Hitung total user
+    const total = await User.countDocuments(filter);
 
     return res.status(200).json({
       success: true,
-      total: users.length,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
       data: users,
     });
   } catch (error) {

@@ -104,6 +104,7 @@ const userSchema = new mongoose.Schema(
       enum: ["active", "suspended"],
       default: "active",
     },
+
     // Siapa yang melakukan suspend
     suspendedBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -129,6 +130,23 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+// ==========================================
+// INDEX MONGODB
+// ==========================================
+
+// Untuk query berdasarkan role + user terbaru
+userSchema.index({
+  role: 1,
+  createdAt: -1,
+});
+
+// Untuk query berdasarkan owner + role + user terbaru
+userSchema.index({
+  ownerId: 1,
+  role: 1,
+  createdAt: -1,
+});
 
 // Membuat model User
 const User = mongoose.model("User", userSchema);

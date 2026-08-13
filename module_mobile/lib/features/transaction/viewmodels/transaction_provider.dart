@@ -26,14 +26,28 @@ class TransactionProvider extends ChangeNotifier {
 
   // filter aktif
   String? selectedType;
-
   String? selectedStatus;
+
+  // ==========================
+  // PAGINATION
+  // ==========================
+
+  int currentPage = 1;
+
+  final int pageLimit = 10;
+
+  bool hasNextPage = false;
 
   // ==========================
   // GET TRANSACTIONS
   // ==========================
 
-  Future getTransactions({String? type, String? status}) async {
+  Future<void> getTransactions({
+    String? type,
+    String? status,
+    int page = 1,
+    int limit = 10,
+  }) async {
     isLoading = true;
 
     errorMessage = null;
@@ -41,14 +55,25 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      transactionList = await _service.getTransactions(
+      final data = await _service.getTransactions(
         type: type,
         status: status,
+        page: page,
+        limit: limit,
       );
 
-      // simpan filter aktif
+      transactionList = data;
+
+      // Simpan filter aktif
       selectedType = type;
       selectedStatus = status;
+
+      // Simpan halaman sekarang
+      currentPage = page;
+
+      // Kalau data yang diterima sebanyak limit,
+      // kemungkinan masih ada halaman berikutnya.
+      hasNextPage = data.length == limit;
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -56,6 +81,40 @@ class TransactionProvider extends ChangeNotifier {
     isLoading = false;
 
     notifyListeners();
+  }
+
+  // ==========================
+  // NEXT PAGE
+  // ==========================
+
+  Future<void> nextPage() async {
+    if (!hasNextPage || isLoading) {
+      return;
+    }
+
+    await getTransactions(
+      type: selectedType,
+      status: selectedStatus,
+      page: currentPage + 1,
+      limit: pageLimit,
+    );
+  }
+
+  // ==========================
+  // PREVIOUS PAGE
+  // ==========================
+
+  Future<void> previousPage() async {
+    if (currentPage <= 1 || isLoading) {
+      return;
+    }
+
+    await getTransactions(
+      type: selectedType,
+      status: selectedStatus,
+      page: currentPage - 1,
+      limit: pageLimit,
+    );
   }
 
   // ==========================
@@ -75,12 +134,6 @@ class TransactionProvider extends ChangeNotifier {
       // ==================================
       // REFRESH PROFILE
       // ==================================
-      // Mengambil coinBalance terbaru
-      // dari backend.
-      //
-      // Jadi Admin / Reseller tidak perlu
-      // pindah tab atau reload dashboard.
-      // ==================================
 
       await authProvider.refreshProfile();
 
@@ -88,7 +141,12 @@ class TransactionProvider extends ChangeNotifier {
       // REFRESH TRANSAKSI
       // ==================================
 
-      await getTransactions(type: selectedType, status: selectedStatus);
+      await getTransactions(
+        type: selectedType,
+        status: selectedStatus,
+        page: currentPage,
+        limit: pageLimit,
+      );
 
       return true;
     } catch (e) {
@@ -110,9 +168,16 @@ class TransactionProvider extends ChangeNotifier {
 
   void clearTransactions() {
     transactionList = [];
+
     selectedType = null;
     selectedStatus = null;
+
+    currentPage = 1;
+
+    hasNextPage = false;
+
     isLoading = false;
+
     errorMessage = null;
 
     notifyListeners();
@@ -124,9 +189,10 @@ class TransactionProvider extends ChangeNotifier {
 
   Future resetFilter() async {
     selectedType = null;
-
     selectedStatus = null;
 
-    await getTransactions();
+    currentPage = 1;
+
+    await getTransactions(page: 1, limit: pageLimit);
   }
 }
