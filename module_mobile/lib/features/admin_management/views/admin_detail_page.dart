@@ -20,7 +20,6 @@ import 'admin_users_page.dart';
 import 'admin_reseller_page.dart';
 
 class AdminDetailPage extends StatelessWidget {
-  // data admin dari halaman sebelumnya
   final Map<String, dynamic> admin;
 
   const AdminDetailPage({super.key, required this.admin});
@@ -35,7 +34,6 @@ class AdminDetailPage extends StatelessWidget {
         : "A";
 
     final bool isSuspended = admin["accountStatus"] == "suspended";
-
     final bool isActive = admin["isActive"] == true;
 
     final String statusText = isSuspended
@@ -174,7 +172,6 @@ class AdminDetailPage extends StatelessWidget {
 
                     const SizedBox(height: 14),
 
-                    // STATUS PROFILE
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -389,9 +386,15 @@ class AdminDetailPage extends StatelessWidget {
                 text: "Reset Password",
                 icon: Icons.lock_reset_outlined,
                 onPressed: () async {
-                  final confirm = await _showResetPasswordDialog(context);
+                  // ===============================
+                  // MINTA PASSWORD BARU DARI
+                  // SUPER ADMIN
+                  // ===============================
+                  final String? newPassword = await _showResetPasswordDialog(
+                    context,
+                  );
 
-                  if (confirm != true) {
+                  if (newPassword == null || newPassword.isEmpty) {
                     return;
                   }
 
@@ -401,16 +404,23 @@ class AdminDetailPage extends StatelessWidget {
 
                   final provider = context.read<AdminProvider>();
 
+                  // ===============================
+                  // KIRIM PASSWORD BARU
+                  // ===============================
                   final result = await provider.resetPassword(
-                    admin["_id"].toString(),
+                    id: admin["_id"].toString(),
+                    newPassword: newPassword,
                   );
 
                   if (!context.mounted) {
                     return;
                   }
 
-                  if (result == true) {
-                    await _showResetPasswordSuccessDialog(context);
+                  // ===============================
+                  // BERHASIL
+                  // ===============================
+                  if (result != null) {
+                    await _showResetPasswordSuccessDialog(context, newPassword);
                   } else {
                     _showErrorSnackBar(
                       context,
@@ -435,9 +445,6 @@ class AdminDetailPage extends StatelessWidget {
 
                   bool result;
 
-                  // ==========================================
-                  // JIKA ADMIN SUDAH DISUSPEND
-                  // ==========================================
                   if (admin["accountStatus"] == "suspended") {
                     final confirm = await _showActivateSuspendDialog(context);
 
@@ -445,12 +452,10 @@ class AdminDetailPage extends StatelessWidget {
                       return;
                     }
 
-                    result = await provider.activateSuspend(admin["_id"]);
-                  }
-                  // ==========================================
-                  // JIKA ADMIN BELUM DISUSPEND
-                  // ==========================================
-                  else {
+                    result = await provider.activateSuspend(
+                      admin["_id"].toString(),
+                    );
+                  } else {
                     final reason = await _showSuspendReasonDialog(context);
 
                     if (reason == null) {
@@ -458,14 +463,11 @@ class AdminDetailPage extends StatelessWidget {
                     }
 
                     result = await provider.suspendAdmin(
-                      id: admin["_id"],
+                      id: admin["_id"].toString(),
                       reason: reason,
                     );
                   }
 
-                  // ==========================================
-                  // BERHASIL
-                  // ==========================================
                   if (result && context.mounted) {
                     Navigator.pop(context, true);
                   }
@@ -492,7 +494,6 @@ class AdminDetailPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-
                   onPressed: admin["accountStatus"] == "suspended"
                       ? null
                       : () async {
@@ -500,9 +501,6 @@ class AdminDetailPage extends StatelessWidget {
 
                           bool result;
 
-                          // ==========================================
-                          // ADMIN AKTIF → KONFIRMASI NONAKTIFKAN
-                          // ==========================================
                           if (admin["isActive"] == true) {
                             final confirm = await _showDeactivateAdminDialog(
                               context,
@@ -513,13 +511,9 @@ class AdminDetailPage extends StatelessWidget {
                             }
 
                             result = await provider.deactivateAdmin(
-                              admin["_id"],
+                              admin["_id"].toString(),
                             );
-                          }
-                          // ==========================================
-                          // ADMIN NONAKTIF → KONFIRMASI AKTIFKAN
-                          // ==========================================
-                          else {
+                          } else {
                             final confirm = await _showActivateAdminDialog(
                               context,
                             );
@@ -528,14 +522,15 @@ class AdminDetailPage extends StatelessWidget {
                               return;
                             }
 
-                            result = await provider.activateAdmin(admin["_id"]);
+                            result = await provider.activateAdmin(
+                              admin["_id"].toString(),
+                            );
                           }
 
                           if (result && context.mounted) {
                             Navigator.pop(context, true);
                           }
                         },
-
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -570,10 +565,10 @@ class AdminDetailPage extends StatelessWidget {
   }
 
   // ==========================================================
-  // DIALOG RESET PASSWORD
+  // DIALOG INPUT PASSWORD BARU
   // ==========================================================
-  Future<bool?> _showResetPasswordDialog(BuildContext context) async {
-    return showDialog<bool>(
+  Future<String?> _showResetPasswordDialog(BuildContext context) async {
+    return showDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (_) {
@@ -583,9 +578,12 @@ class AdminDetailPage extends StatelessWidget {
   }
 
   // ==========================================================
-  // DIALOG RESET PASSWORD BERHASIL
+  // DIALOG PASSWORD BERHASIL
   // ==========================================================
-  Future<void> _showResetPasswordSuccessDialog(BuildContext context) async {
+  Future<void> _showResetPasswordSuccessDialog(
+    BuildContext context,
+    String newPassword,
+  ) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -647,10 +645,61 @@ class AdminDetailPage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 18),
 
                 const Text(
-                  "Silakan berikan password baru kepada admin.",
+                  "Password Baru",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AuthTheme.subtitle,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 15,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AuthTheme.blueGlow.withValues(alpha: .08),
+                    borderRadius: BorderRadius.circular(13),
+                    border: Border.all(
+                      color: AuthTheme.blueGlow.withValues(alpha: .25),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.lock_outline,
+                        color: AuthTheme.blueGlow,
+                        size: 21,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          newPassword,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AuthTheme.title,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                const Text(
+                  "Berikan password baru ini kepada admin.",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AuthTheme.subtitle, fontSize: 12),
                 ),
@@ -659,22 +708,29 @@ class AdminDetailPage extends StatelessWidget {
 
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13),
-                      ),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: AuthTheme.buttonGradient,
+                      borderRadius: BorderRadius.circular(13),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      "OK",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -885,18 +941,83 @@ class AdminDetailPage extends StatelessWidget {
 
 // ==========================================================
 // DIALOG RESET PASSWORD
+// SUPER ADMIN MEMBUAT PASSWORD BARU
 // ==========================================================
 
-class _ResetPasswordDialog extends StatelessWidget {
+class _ResetPasswordDialog extends StatefulWidget {
   final Map<String, dynamic> admin;
 
   const _ResetPasswordDialog({required this.admin});
 
   @override
-  Widget build(BuildContext context) {
-    final String name = admin["name"]?.toString() ?? "-";
+  State<_ResetPasswordDialog> createState() => _ResetPasswordDialogState();
+}
 
-    final String email = admin["email"]?.toString() ?? "-";
+class _ResetPasswordDialogState extends State<_ResetPasswordDialog> {
+  late final TextEditingController _passwordController;
+  late final TextEditingController _confirmPasswordController;
+
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _passwordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+
+    super.dispose();
+  }
+
+  void _submit() {
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+
+    if (password.isEmpty) {
+      _showError("Password baru wajib diisi.");
+      return;
+    }
+
+    if (password.length < 6) {
+      _showError("Password baru minimal 6 karakter.");
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      _showError("Konfirmasi password wajib diisi.");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showError("Password dan konfirmasi password tidak sama.");
+      return;
+    }
+
+    Navigator.pop(context, password);
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String name = widget.admin["name"]?.toString() ?? "-";
+
+    final String email = widget.admin["email"]?.toString() ?? "-";
 
     final String initial = name.isNotEmpty && name != "-"
         ? name[0].toUpperCase()
@@ -919,224 +1040,360 @@ class _ResetPasswordDialog extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // HEADER
-            Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: .15),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(
-                    Icons.lock_reset_outlined,
-                    color: Colors.blue,
-                    size: 27,
-                  ),
-                ),
-
-                const SizedBox(width: 14),
-
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Reset Password",
-                        style: TextStyle(
-                          color: AuthTheme.title,
-                          fontSize: 19,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "Reset password akun admin ini",
-                        style: TextStyle(
-                          color: AuthTheme.subtitle,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                  },
-                  icon: const Icon(Icons.close, color: Colors.white54),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 22),
-
-            // ADMIN INFO
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .04),
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: AuthTheme.border),
-              ),
-              child: Row(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ===============================
+              // HEADER
+              // ===============================
+              Row(
                 children: [
                   Container(
-                    width: 42,
-                    height: 42,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       gradient: AuthTheme.buttonGradient,
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Center(
-                      child: Text(
-                        initial,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    child: const Icon(
+                      Icons.lock_reset_outlined,
+                      color: Colors.white,
+                      size: 27,
                     ),
                   ),
 
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
 
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Admin yang passwordnya akan direset",
-                          style: TextStyle(
-                            color: AuthTheme.subtitle,
-                            fontSize: 11,
-                          ),
-                        ),
-
-                        const SizedBox(height: 3),
-
                         Text(
-                          name,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          "Reset Password",
+                          style: TextStyle(
                             color: AuthTheme.title,
-                            fontSize: 15,
+                            fontSize: 19,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-
-                        const SizedBox(height: 2),
-
+                        SizedBox(height: 4),
                         Text(
-                          email,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          "Buat password baru untuk admin ini",
+                          style: TextStyle(
                             color: AuthTheme.subtitle,
-                            fontSize: 11,
+                            fontSize: 12,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
 
-            const SizedBox(height: 18),
-
-            // WARNING
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withValues(alpha: .20)),
-              ),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    color: Colors.orange,
-                    size: 19,
-                  ),
-                  SizedBox(width: 9),
-                  Expanded(
-                    child: Text(
-                      "Password admin akan direset. Pastikan password baru diberikan kepada admin setelah proses selesai.",
-                      style: TextStyle(color: AuthTheme.subtitle, fontSize: 12),
-                    ),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.close, color: Colors.white54),
                   ),
                 ],
               ),
-            ),
 
-            const SizedBox(height: 22),
+              const SizedBox(height: 22),
 
-            // BUTTON
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AuthTheme.subtitle,
-                      side: BorderSide(color: AuthTheme.border),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13),
+              // ===============================
+              // ADMIN INFO
+              // ===============================
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: .04),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: AuthTheme.border),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        gradient: AuthTheme.buttonGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          initial,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context, false);
-                    },
-                    child: const Text(
-                      "Batal",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Admin yang passwordnya akan direset",
+                            style: TextStyle(
+                              color: AuthTheme.subtitle,
+                              fontSize: 11,
+                            ),
+                          ),
+
+                          const SizedBox(height: 3),
+
+                          Text(
+                            name,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AuthTheme.title,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 2),
+
+                          Text(
+                            email,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AuthTheme.subtitle,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // ===============================
+              // WARNING
+              // ===============================
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: .08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: .20),
+                  ),
+                ),
+                child: const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.orange,
+                      size: 19,
+                    ),
+                    SizedBox(width: 9),
+                    Expanded(
+                      child: Text(
+                        "Super Admin akan membuat password baru untuk akun admin ini.",
+                        style: TextStyle(
+                          color: AuthTheme.subtitle,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ===============================
+              // PASSWORD BARU
+              // ===============================
+              const Text(
+                "Password Baru",
+                style: TextStyle(
+                  color: AuthTheme.title,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: AuthTheme.inputFill,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AuthTheme.border),
+                ),
+                child: TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.next,
+                  style: const TextStyle(color: AuthTheme.title, fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText: "Masukkan password baru",
+                    hintStyle: const TextStyle(
+                      color: AuthTheme.hint,
+                      fontSize: 12,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: AuthTheme.subtitle,
+                      size: 20,
+                    ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: AuthTheme.subtitle,
+                        size: 20,
+                      ),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 15,
                     ),
                   ),
                 ),
+              ),
 
-                const SizedBox(width: 10),
+              const SizedBox(height: 15),
 
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(13),
+              // ===============================
+              // KONFIRMASI PASSWORD
+              // ===============================
+              const Text(
+                "Konfirmasi Password",
+                style: TextStyle(
+                  color: AuthTheme.title,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: AuthTheme.inputFill,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AuthTheme.border),
+                ),
+                child: TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmPassword,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _submit(),
+                  style: const TextStyle(color: AuthTheme.title, fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText: "Masukkan ulang password",
+                    hintStyle: const TextStyle(
+                      color: AuthTheme.hint,
+                      fontSize: 12,
                     ),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: AuthTheme.subtitle,
+                      size: 20,
+                    ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _obscureConfirmPassword = !_obscureConfirmPassword;
+                        });
+                      },
+                      icon: Icon(
+                        _obscureConfirmPassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: AuthTheme.subtitle,
+                        size: 20,
+                      ),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 15,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 22),
+
+              // ===============================
+              // BUTTON
+              // ===============================
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AuthTheme.subtitle,
+                        side: BorderSide(color: AuthTheme.border),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(13),
                         ),
                       ),
                       onPressed: () {
-                        Navigator.pop(context, true);
+                        Navigator.pop(context);
                       },
                       child: const Text(
-                        "Reset",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                        "Batal",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  Expanded(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: AuthTheme.buttonGradient,
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(13),
+                          ),
+                        ),
+                        onPressed: _submit,
+                        child: const Text(
+                          "Reset",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1764,7 +2021,6 @@ class _ActivateAdminDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER
             Row(
               children: [
                 Container(
@@ -1818,7 +2074,6 @@ class _ActivateAdminDialog extends StatelessWidget {
 
             const SizedBox(height: 22),
 
-            // ADMIN INFO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -1892,7 +2147,6 @@ class _ActivateAdminDialog extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            // INFO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -1922,7 +2176,6 @@ class _ActivateAdminDialog extends StatelessWidget {
 
             const SizedBox(height: 22),
 
-            // BUTTON
             Row(
               children: [
                 Expanded(

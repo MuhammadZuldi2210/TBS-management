@@ -121,7 +121,10 @@ class AdminProvider extends ChangeNotifier {
   // ==========================================
   // RESET PASSWORD ADMIN
   // ==========================================
-  Future resetPassword(String id) async {
+  Future<Map<String, dynamic>?> resetPassword({
+    required String id,
+    required String newPassword,
+  }) async {
     isLoading = true;
     errorMessage = null;
     successMessage = null;
@@ -129,17 +132,20 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _adminService.resetPassword(id);
+      final response = await _adminService.resetPassword(
+        id: id,
+        newPassword: newPassword,
+      );
 
       successMessage = response["message"];
 
       await getAdmins();
 
-      return true;
+      return response;
     } catch (e) {
       errorMessage = e.toString();
 
-      return false;
+      return null;
     } finally {
       isLoading = false;
       notifyListeners();

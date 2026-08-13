@@ -55,8 +55,14 @@ class AdminService {
   }
 
   // RESET PASSWORD ADMIN
-  Future<Map<String, dynamic>> resetPassword(String id) async {
-    final response = await DioClient.dio.put("/admins/$id/reset-password");
+  Future<Map<String, dynamic>> resetPassword({
+    required String id,
+    required String newPassword,
+  }) async {
+    final response = await DioClient.dio.put(
+      "/admins/$id/reset-password",
+      data: {"newPassword": newPassword},
+    );
 
     return response.data;
   }
