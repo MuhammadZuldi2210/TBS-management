@@ -59,6 +59,14 @@ router.put(
   userController.updateUser,
 );
 
+// RESET PASSWORD
+router.put(
+  "/:id/reset-password",
+  protect,
+  authorize("super_admin"),
+  userController.resetPassword,
+);
+
 // NONAKTIF USER
 router.patch(
   "/:id/deactivate",

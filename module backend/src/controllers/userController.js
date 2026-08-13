@@ -1018,6 +1018,98 @@ const activateSuspendUser = async (req, res) => {
 };
 
 /* =========================
+   RESET PASSWORD
+   HANYA SUPER ADMIN
+========================= */
+const resetPassword = async (req, res) => {
+  try {
+    // =========================
+    // CEK ROLE LOGIN
+    // =========================
+    if (req.user.role !== "super_admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Hanya Super Admin yang dapat reset password",
+      });
+    }
+
+    const userId = req.params.id;
+    const { password, confirmPassword } = req.body;
+
+    // =========================
+    // VALIDASI PASSWORD
+    // =========================
+    if (!password || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Password dan konfirmasi password wajib diisi",
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Konfirmasi password tidak cocok",
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password minimal 6 karakter",
+      });
+    }
+
+    // =========================
+    // CARI TARGET
+    // =========================
+    const targetUser = await User.findById(userId);
+
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Akun tidak ditemukan",
+      });
+    }
+
+    // =========================
+    // SUPER ADMIN BOLEH RESET
+    // ADMIN, RESELLER, USER
+    // =========================
+    if (!["admin_user", "reseller", "user"].includes(targetUser.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Password akun ini tidak dapat direset",
+      });
+    }
+
+    // =========================
+    // HASH PASSWORD BARU
+    // =========================
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    targetUser.password = hashedPassword;
+
+    await targetUser.save();
+
+    // =========================
+    // RESPONSE
+    // =========================
+    return res.status(200).json({
+      success: true,
+      message: "Password berhasil direset",
+    });
+  } catch (error) {
+    console.log("RESET PASSWORD ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+/* =========================
    EXPORT
 ========================= */
 module.exports = {
@@ -1033,4 +1125,5 @@ module.exports = {
   updateUser,
   suspendUser,
   activateSuspendUser,
+  resetPassword,
 };
