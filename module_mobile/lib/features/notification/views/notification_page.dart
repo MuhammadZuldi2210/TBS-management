@@ -218,24 +218,165 @@ class _NotificationPageState extends State<NotificationPage> {
                               onPressed: () async {
                                 final confirm = await showDialog<bool>(
                                   context: context,
+                                  barrierDismissible: false,
                                   builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text("Hapus Notifikasi"),
-                                      content: const Text(
-                                        "Yakin ingin menghapus notifikasi ini?",
+                                    return Dialog(
+                                      backgroundColor: Colors.transparent,
+                                      insetPadding: const EdgeInsets.symmetric(
+                                        horizontal: 28,
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: const Text("Batal"),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(24),
+                                        decoration: BoxDecoration(
+                                          color: AuthTheme.cardBackground,
+                                          borderRadius: BorderRadius.circular(
+                                            24,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.redAccent.withValues(
+                                              alpha: 0.35,
+                                            ),
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.35,
+                                              ),
+                                              blurRadius: 25,
+                                              offset: const Offset(0, 10),
+                                            ),
+                                          ],
                                         ),
-                                        ElevatedButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, true),
-                                          child: const Text("Hapus"),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            // ICON
+                                            Container(
+                                              width: 64,
+                                              height: 64,
+                                              decoration: BoxDecoration(
+                                                color: Colors.redAccent
+                                                    .withValues(alpha: 0.12),
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.redAccent
+                                                      .withValues(alpha: 0.25),
+                                                ),
+                                              ),
+                                              child: const Icon(
+                                                Icons.delete_outline_rounded,
+                                                color: Colors.redAccent,
+                                                size: 32,
+                                              ),
+                                            ),
+
+                                            const SizedBox(height: 18),
+
+                                            // TITLE
+                                            const Text(
+                                              "Hapus Notifikasi?",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: AuthTheme.title,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+
+                                            const SizedBox(height: 10),
+
+                                            // DESCRIPTION
+                                            const Text(
+                                              "Notifikasi ini akan dihapus secara permanen dan tidak dapat dikembalikan.",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: AuthTheme.subtitle,
+                                                fontSize: 14,
+                                                height: 1.5,
+                                              ),
+                                            ),
+
+                                            const SizedBox(height: 24),
+
+                                            // BUTTONS
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: OutlinedButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                        context,
+                                                        false,
+                                                      );
+                                                    },
+                                                    style: OutlinedButton.styleFrom(
+                                                      foregroundColor:
+                                                          AuthTheme.subtitle,
+                                                      side: const BorderSide(
+                                                        color: AuthTheme.border,
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            vertical: 14,
+                                                          ),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              14,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                    child: const Text(
+                                                      "Batal",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                const SizedBox(width: 12),
+
+                                                Expanded(
+                                                  child: ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                        context,
+                                                        true,
+                                                      );
+                                                    },
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                          Colors.redAccent,
+                                                      foregroundColor:
+                                                          Colors.white,
+                                                      elevation: 0,
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            vertical: 14,
+                                                          ),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              14,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                    child: const Text(
+                                                      "Hapus",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     );
                                   },
                                 );

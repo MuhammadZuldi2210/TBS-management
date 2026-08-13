@@ -10,7 +10,7 @@ class DioClient {
   static final Dio dio = Dio(
     BaseOptions(
       // Base URL backend
-      baseUrl: "http://192.168.0.205:5000/api",
+      baseUrl: "https://tbs-management-production.up.railway.app/api",
 
       // Timeout koneksi
       connectTimeout: const Duration(seconds: 10),
