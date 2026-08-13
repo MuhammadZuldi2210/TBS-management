@@ -109,7 +109,10 @@ const loginUser = async (req, res) => {
       });
     }
     // cek password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(
+      String(password),
+      String(user.password),
+    );
     console.log("Password cocok:", isMatch);
 
     if (!isMatch) {
