@@ -383,6 +383,46 @@ class AdminDetailPage extends StatelessWidget {
               const SizedBox(height: 15),
 
               // ===============================
+              // RESET PASSWORD
+              // ===============================
+              _primaryButton(
+                text: "Reset Password",
+                icon: Icons.lock_reset_outlined,
+                onPressed: () async {
+                  final confirm = await _showResetPasswordDialog(context);
+
+                  if (confirm != true) {
+                    return;
+                  }
+
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  final provider = context.read<AdminProvider>();
+
+                  final result = await provider.resetPassword(
+                    admin["_id"].toString(),
+                  );
+
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  if (result == true) {
+                    await _showResetPasswordSuccessDialog(context);
+                  } else {
+                    _showErrorSnackBar(
+                      context,
+                      provider.errorMessage ?? "Gagal mereset password admin",
+                    );
+                  }
+                },
+              ),
+
+              const SizedBox(height: 15),
+
+              // ===============================
               // SUSPEND / AKTIFKAN SUSPEND
               // ===============================
               _primaryButton(
@@ -453,40 +493,48 @@ class AdminDetailPage extends StatelessWidget {
                     ),
                   ),
 
-                  onPressed: () async {
-                    final provider = context.read<AdminProvider>();
+                  onPressed: admin["accountStatus"] == "suspended"
+                      ? null
+                      : () async {
+                          final provider = context.read<AdminProvider>();
 
-                    bool result;
+                          bool result;
 
-                    // ==========================================
-                    // ADMIN AKTIF → KONFIRMASI NONAKTIFKAN
-                    // ==========================================
-                    if (admin["isActive"] == true) {
-                      final confirm = await _showDeactivateAdminDialog(context);
+                          // ==========================================
+                          // ADMIN AKTIF → KONFIRMASI NONAKTIFKAN
+                          // ==========================================
+                          if (admin["isActive"] == true) {
+                            final confirm = await _showDeactivateAdminDialog(
+                              context,
+                            );
 
-                      if (confirm != true) {
-                        return;
-                      }
+                            if (confirm != true) {
+                              return;
+                            }
 
-                      result = await provider.deactivateAdmin(admin["_id"]);
-                    }
-                    // ==========================================
-                    // ADMIN NONAKTIF → KONFIRMASI AKTIFKAN
-                    // ==========================================
-                    else {
-                      final confirm = await _showActivateAdminDialog(context);
+                            result = await provider.deactivateAdmin(
+                              admin["_id"],
+                            );
+                          }
+                          // ==========================================
+                          // ADMIN NONAKTIF → KONFIRMASI AKTIFKAN
+                          // ==========================================
+                          else {
+                            final confirm = await _showActivateAdminDialog(
+                              context,
+                            );
 
-                      if (confirm != true) {
-                        return;
-                      }
+                            if (confirm != true) {
+                              return;
+                            }
 
-                      result = await provider.activateAdmin(admin["_id"]);
-                    }
+                            result = await provider.activateAdmin(admin["_id"]);
+                          }
 
-                    if (result && context.mounted) {
-                      Navigator.pop(context, true);
-                    }
-                  },
+                          if (result && context.mounted) {
+                            Navigator.pop(context, true);
+                          }
+                        },
 
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -517,6 +565,137 @@ class AdminDetailPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // ==========================================================
+  // DIALOG RESET PASSWORD
+  // ==========================================================
+  Future<bool?> _showResetPasswordDialog(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return _ResetPasswordDialog(admin: admin);
+      },
+    );
+  }
+
+  // ==========================================================
+  // DIALOG RESET PASSWORD BERHASIL
+  // ==========================================================
+  Future<void> _showResetPasswordSuccessDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: AuthTheme.cardBackground,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AuthTheme.border),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: .25),
+                  blurRadius: 25,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 65,
+                  height: 65,
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: .12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    size: 38,
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                const Text(
+                  "Password Berhasil Direset",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AuthTheme.title,
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  "Password admin ${admin["name"] ?? "-"} berhasil direset.",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AuthTheme.subtitle,
+                    fontSize: 13,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                const Text(
+                  "Silakan berikan password baru kepada admin.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AuthTheme.subtitle, fontSize: 12),
+                ),
+
+                const SizedBox(height: 22),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ==========================================================
+  // ERROR SNACKBAR
+  // ==========================================================
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -700,6 +879,266 @@ class AdminDetailPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Divider(height: 1, color: AuthTheme.border.withValues(alpha: .65)),
+    );
+  }
+}
+
+// ==========================================================
+// DIALOG RESET PASSWORD
+// ==========================================================
+
+class _ResetPasswordDialog extends StatelessWidget {
+  final Map<String, dynamic> admin;
+
+  const _ResetPasswordDialog({required this.admin});
+
+  @override
+  Widget build(BuildContext context) {
+    final String name = admin["name"]?.toString() ?? "-";
+
+    final String email = admin["email"]?.toString() ?? "-";
+
+    final String initial = name.isNotEmpty && name != "-"
+        ? name[0].toUpperCase()
+        : "A";
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: AuthTheme.cardBackground,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AuthTheme.border),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: .25),
+              blurRadius: 25,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // HEADER
+            Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: .15),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.lock_reset_outlined,
+                    color: Colors.blue,
+                    size: 27,
+                  ),
+                ),
+
+                const SizedBox(width: 14),
+
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Reset Password",
+                        style: TextStyle(
+                          color: AuthTheme.title,
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        "Reset password akun admin ini",
+                        style: TextStyle(
+                          color: AuthTheme.subtitle,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  icon: const Icon(Icons.close, color: Colors.white54),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 22),
+
+            // ADMIN INFO
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .04),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: AuthTheme.border),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      gradient: AuthTheme.buttonGradient,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        initial,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Admin yang passwordnya akan direset",
+                          style: TextStyle(
+                            color: AuthTheme.subtitle,
+                            fontSize: 11,
+                          ),
+                        ),
+
+                        const SizedBox(height: 3),
+
+                        Text(
+                          name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AuthTheme.title,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 2),
+
+                        Text(
+                          email,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AuthTheme.subtitle,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 18),
+
+            // WARNING
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: .08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.withValues(alpha: .20)),
+              ),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.orange,
+                    size: 19,
+                  ),
+                  SizedBox(width: 9),
+                  Expanded(
+                    child: Text(
+                      "Password admin akan direset. Pastikan password baru diberikan kepada admin setelah proses selesai.",
+                      style: TextStyle(color: AuthTheme.subtitle, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            // BUTTON
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AuthTheme.subtitle,
+                      side: BorderSide(color: AuthTheme.border),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                    },
+                    child: const Text(
+                      "Batal",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context, true);
+                      },
+                      child: const Text(
+                        "Reset",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

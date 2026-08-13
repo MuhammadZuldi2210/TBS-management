@@ -1,4 +1,3 @@
-// import dio client
 import '../../../core/api/dio_client.dart';
 
 // Class service untuk mengelola data admin
@@ -51,6 +50,13 @@ class AdminService {
       "/admins/$id",
       data: {"name": name, "email": email},
     );
+
+    return response.data;
+  }
+
+  // RESET PASSWORD ADMIN
+  Future<Map<String, dynamic>> resetPassword(String id) async {
+    final response = await DioClient.dio.put("/admins/$id/reset-password");
 
     return response.data;
   }

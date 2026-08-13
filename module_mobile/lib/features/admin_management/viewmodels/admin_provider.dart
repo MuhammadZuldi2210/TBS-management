@@ -119,6 +119,34 @@ class AdminProvider extends ChangeNotifier {
   }
 
   // ==========================================
+  // RESET PASSWORD ADMIN
+  // ==========================================
+  Future resetPassword(String id) async {
+    isLoading = true;
+    errorMessage = null;
+    successMessage = null;
+
+    notifyListeners();
+
+    try {
+      final response = await _adminService.resetPassword(id);
+
+      successMessage = response["message"];
+
+      await getAdmins();
+
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ==========================================
   // NONAKTIFKAN ADMIN
   // ==========================================
   Future deactivateAdmin(String id) async {
