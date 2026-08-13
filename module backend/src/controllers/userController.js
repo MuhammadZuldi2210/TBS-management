@@ -1,6 +1,8 @@
 // Mengimpor model User
 const User = require("../models/User");
 
+const mongoose = require("mongoose");
+
 // Import bcrypt untuk hash password
 const bcrypt = require("bcryptjs");
 
@@ -1024,7 +1026,17 @@ const activateSuspendUser = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     // =========================
-    // CEK ROLE LOGIN
+    // CEK LOGIN
+    // =========================
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "User belum login",
+      });
+    }
+
+    // =========================
+    // CEK ROLE
     // =========================
     if (req.user.role !== "super_admin") {
       return res.status(403).json({
@@ -1033,11 +1045,14 @@ const resetPassword = async (req, res) => {
       });
     }
 
+    // =========================
+    // AMBIL DATA
+    // =========================
     const userId = req.params.id;
     const { password, confirmPassword } = req.body;
 
     // =========================
-    // VALIDASI PASSWORD
+    // VALIDASI
     // =========================
     if (!password || !confirmPassword) {
       return res.status(400).json({
@@ -1053,7 +1068,7 @@ const resetPassword = async (req, res) => {
       });
     }
 
-    if (password.length < 6) {
+    if (typeof password !== "string" || password.length < 6) {
       return res.status(400).json({
         success: false,
         message: "Password minimal 6 karakter",
@@ -1061,7 +1076,17 @@ const resetPassword = async (req, res) => {
     }
 
     // =========================
-    // CARI TARGET
+    // VALIDASI ID
+    // =========================
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "ID user tidak valid",
+      });
+    }
+
+    // =========================
+    // CARI USER
     // =========================
     const targetUser = await User.findById(userId);
 
@@ -1073,8 +1098,7 @@ const resetPassword = async (req, res) => {
     }
 
     // =========================
-    // SUPER ADMIN BOLEH RESET
-    // ADMIN, RESELLER, USER
+    // TARGET YANG BOLEH DIRESET
     // =========================
     if (!["admin_user", "reseller", "user"].includes(targetUser.role)) {
       return res.status(403).json({
@@ -1084,27 +1108,34 @@ const resetPassword = async (req, res) => {
     }
 
     // =========================
-    // HASH PASSWORD BARU
+    // HASH PASSWORD
     // =========================
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // =========================
+    // UPDATE PASSWORD
+    // =========================
     targetUser.password = hashedPassword;
 
     await targetUser.save();
 
-    // =========================
-    // RESPONSE
-    // =========================
+    console.log(`PASSWORD RESET BERHASIL: ${targetUser.email}`);
+
     return res.status(200).json({
       success: true,
       message: "Password berhasil direset",
     });
   } catch (error) {
-    console.log("RESET PASSWORD ERROR:", error);
+    console.error("=================================");
+    console.error("RESET PASSWORD ERROR");
+    console.error("MESSAGE:", error.message);
+    console.error("STACK:", error.stack);
+    console.error("=================================");
 
     return res.status(500).json({
       success: false,
       message: "Server error",
+      error: error.message,
     });
   }
 };

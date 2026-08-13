@@ -480,6 +480,25 @@ const resetPassword = async (req, res) => {
     // Mengambil ID admin dari parameter URL
     const { id } = req.params;
 
+    // Mengambil password baru dari request body
+    const { newPassword } = req.body;
+
+    // Validasi password baru
+    if (!newPassword || newPassword.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Password baru wajib diisi",
+      });
+    }
+
+    // Validasi panjang password
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password baru minimal 6 karakter",
+      });
+    }
+
     // Mencari admin
     const admin = await User.findOne({
       _id: id,
@@ -494,12 +513,6 @@ const resetPassword = async (req, res) => {
       });
     }
 
-    // ==========================================
-    // GENERATE PASSWORD BARU OTOMATIS
-    // ==========================================
-
-    const newPassword = Math.random().toString(36).slice(-8);
-
     // Hash password baru
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
@@ -508,14 +521,10 @@ const resetPassword = async (req, res) => {
 
     await admin.save();
 
-    // ==========================================
-    // RESPONSE
-    // ==========================================
-
+    // Response
     return res.status(200).json({
       success: true,
       message: "Password admin berhasil direset",
-      password: newPassword,
     });
   } catch (error) {
     console.log("RESET PASSWORD ADMIN ERROR:", error);
