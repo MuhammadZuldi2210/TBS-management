@@ -55,7 +55,7 @@ router.post(
 router.put(
   "/:id",
   protect,
-  authorize("super_admin"),
+  authorize("super_admin", "admin_user", "reseller"),
   userController.updateUser,
 );
 

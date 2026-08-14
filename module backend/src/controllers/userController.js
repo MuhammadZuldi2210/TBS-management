@@ -1,6 +1,6 @@
 // Mengimpor model User
 const User = require("../models/User");
-
+// Import mongoose
 const mongoose = require("mongoose");
 
 // Import bcrypt untuk hash password
