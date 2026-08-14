@@ -111,6 +111,40 @@ class UserManagementProvider extends ChangeNotifier {
   }
 
   // ==========================
+  // RESET PASSWORD USER
+  // SUPER ADMIN
+  // ==========================
+
+  Future<bool> resetPassword({
+    required String userId,
+    required String newPassword,
+  }) async {
+    try {
+      isLoading = true;
+      errorMessage = null;
+      successMessage = null;
+
+      notifyListeners();
+
+      await _userService.resetPassword(
+        userId: userId,
+        newPassword: newPassword,
+      );
+
+      successMessage = "Password user berhasil direset";
+
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ==========================
   // TRANSFER USER
   // ==========================
 

@@ -67,6 +67,20 @@ class ResellerService {
   }
 
   // ==============================
+  // RESET PASSWORD RESELLER
+  // ==============================
+
+  Future<void> resetPassword({
+    required String resellerId,
+    required String newPassword,
+  }) async {
+    await DioClient.dio.put(
+      "/users/$resellerId/reset-password",
+      data: {"password": newPassword, "confirmPassword": newPassword},
+    );
+  }
+
+  // ==============================
   // SUSPEND RESELLER
   // ==============================
 

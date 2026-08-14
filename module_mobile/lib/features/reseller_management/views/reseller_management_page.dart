@@ -90,10 +90,34 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
       body: provider.isLoading && provider.resellerList.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : provider.resellerList.isEmpty
-          ? const Center(
-              child: Text(
-                "Belum ada reseller",
-                style: TextStyle(color: AuthTheme.title),
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.storefront_outlined,
+                    size: 60,
+                    color: AuthTheme.subtitle,
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  const Text(
+                    "Belum ada reseller",
+                    style: TextStyle(
+                      color: AuthTheme.title,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  const Text(
+                    "Data reseller akan tampil di sini",
+                    style: TextStyle(color: AuthTheme.subtitle, fontSize: 13),
+                  ),
+                ],
               ),
             )
           : RefreshIndicator(
@@ -112,6 +136,40 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
 
                   final bool isActive = reseller["isActive"] == true;
 
+                  final Color statusColor = isSuspended
+                      ? Colors.orange
+                      : isActive
+                      ? Colors.green
+                      : Colors.red;
+
+                  final String statusText = isSuspended
+                      ? "Suspend"
+                      : isActive
+                      ? "Aktif"
+                      : "Tidak Aktif";
+
+                  final String name = reseller["name"]?.toString() ?? "-";
+
+                  final String email = reseller["email"]?.toString() ?? "-";
+
+                  final String initial = name.isNotEmpty && name != "-"
+                      ? name[0].toUpperCase()
+                      : "R";
+
+                  final int totalUser =
+                      int.tryParse(reseller["totalUser"]?.toString() ?? "0") ??
+                      0;
+
+                  final int coinBalance =
+                      int.tryParse(
+                        reseller["coinBalance"]?.toString() ?? "0",
+                      ) ??
+                      0;
+
+                  final String ownerName = reseller["ownerId"] is Map
+                      ? reseller["ownerId"]["name"]?.toString() ?? "-"
+                      : "-";
+
                   return Container(
                     margin: const EdgeInsets.only(bottom: 18),
 
@@ -120,14 +178,17 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
                     decoration: BoxDecoration(
                       color: AuthTheme.cardBackground,
 
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(22),
 
                       border: Border.all(color: AuthTheme.border),
 
                       boxShadow: [
                         BoxShadow(
-                          color: AuthTheme.blueGlow.withValues(alpha: 0.12),
-                          blurRadius: 15,
+                          color: AuthTheme.blueGlow.withValues(alpha: 0.15),
+
+                          blurRadius: 20,
+
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
@@ -137,7 +198,7 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
 
                       children: [
                         // ==================================================
-                        // HEADER
+                        // HEADER RESELLER
                         // ==================================================
                         Row(
                           children: [
@@ -147,21 +208,29 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
 
                               decoration: BoxDecoration(
                                 gradient: AuthTheme.buttonGradient,
+
                                 shape: BoxShape.circle,
+
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AuthTheme.blueGlow.withValues(
+                                      alpha: 0.20,
+                                    ),
+
+                                    blurRadius: 12,
+                                  ),
+                                ],
                               ),
 
                               child: Center(
                                 child: Text(
-                                  reseller["name"] != null &&
-                                          reseller["name"].toString().isNotEmpty
-                                      ? reseller["name"]
-                                            .toString()[0]
-                                            .toUpperCase()
-                                      : "R",
+                                  initial,
 
                                   style: const TextStyle(
                                     color: Colors.white,
+
                                     fontSize: 22,
+
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -176,23 +245,51 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
 
                                 children: [
                                   Text(
-                                    reseller["name"] ?? "-",
+                                    name,
+
+                                    maxLines: 1,
+
+                                    overflow: TextOverflow.ellipsis,
 
                                     style: const TextStyle(
                                       color: AuthTheme.title,
+
                                       fontSize: 18,
+
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
 
                                   const SizedBox(height: 5),
 
-                                  Text(
-                                    reseller["email"] ?? "-",
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.email_outlined,
 
-                                    style: const TextStyle(
-                                      color: AuthTheme.subtitle,
-                                    ),
+                                        size: 14,
+
+                                        color: AuthTheme.subtitle,
+                                      ),
+
+                                      const SizedBox(width: 5),
+
+                                      Expanded(
+                                        child: Text(
+                                          email,
+
+                                          maxLines: 1,
+
+                                          overflow: TextOverflow.ellipsis,
+
+                                          style: const TextStyle(
+                                            color: AuthTheme.subtitle,
+
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -200,81 +297,151 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
                           ],
                         ),
 
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 17),
 
                         // ==================================================
-                        // PEMILIK
+                        // PEMILIK ADMIN
                         // ==================================================
-                        Text(
-                          "Pemilik Admin : "
-                          "${reseller["ownerId"] is Map ? reseller["ownerId"]["name"] : "-"}",
+                        Container(
+                          width: double.infinity,
 
-                          style: const TextStyle(
-                            color: AuthTheme.title,
-                            fontWeight: FontWeight.w600,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 13,
+                            vertical: 11,
+                          ),
+
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.035),
+
+                            borderRadius: BorderRadius.circular(13),
+
+                            border: Border.all(
+                              color: AuthTheme.border.withValues(alpha: 0.75),
+                            ),
+                          ),
+
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+
+                                decoration: BoxDecoration(
+                                  color: AuthTheme.blueGlow.withValues(
+                                    alpha: 0.10,
+                                  ),
+
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+
+                                child: const Icon(
+                                  Icons.admin_panel_settings_outlined,
+
+                                  color: AuthTheme.blueGlow,
+
+                                  size: 18,
+                                ),
+                              ),
+
+                              const SizedBox(width: 10),
+
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                                  children: [
+                                    const Text(
+                                      "Pemilik Admin",
+
+                                      style: TextStyle(
+                                        color: AuthTheme.subtitle,
+
+                                        fontSize: 10,
+
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 2),
+
+                                    Text(
+                                      ownerName,
+
+                                      maxLines: 1,
+
+                                      overflow: TextOverflow.ellipsis,
+
+                                      style: const TextStyle(
+                                        color: AuthTheme.title,
+
+                                        fontSize: 13,
+
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 16),
 
                         // ==================================================
-                        // USER + COIN
+                        // STATISTIK RESELLER
                         // ==================================================
                         Row(
                           children: [
+                            // COIN
                             Expanded(
-                              child: Text(
-                                "User : "
-                                "${reseller["totalUser"] ?? 0}",
+                              child: _statCard(
+                                icon: Icons.monetization_on_outlined,
 
-                                style: const TextStyle(color: AuthTheme.title),
+                                iconColor: Colors.amber,
+
+                                title: "Coin",
+
+                                value: "$coinBalance",
                               ),
                             ),
 
+                            const SizedBox(width: 10),
+
+                            // USER
                             Expanded(
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.monetization_on,
-                                    color: Colors.amber,
-                                    size: 18,
-                                  ),
+                              child: _statCard(
+                                icon: Icons.people_outline,
 
-                                  const SizedBox(width: 5),
+                                iconColor: Colors.purpleAccent,
 
-                                  Text(
-                                    "${reseller["coinBalance"] ?? 0} Coin",
+                                title: "User",
 
-                                    style: const TextStyle(
-                                      color: AuthTheme.title,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
+                                value: "$totalUser",
                               ),
                             ),
                           ],
                         ),
 
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 16),
 
                         // ==================================================
                         // STATUS
                         // ==================================================
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
+                            horizontal: 12,
+                            vertical: 7,
                           ),
 
                           decoration: BoxDecoration(
-                            color: isSuspended
-                                ? Colors.orange.withValues(alpha: 0.12)
-                                : isActive
-                                ? Colors.green.withValues(alpha: 0.12)
-                                : Colors.red.withValues(alpha: 0.12),
+                            color: statusColor.withValues(alpha: 0.10),
 
                             borderRadius: BorderRadius.circular(20),
+
+                            border: Border.all(
+                              color: statusColor.withValues(alpha: 0.20),
+                            ),
                           ),
 
                           child: Row(
@@ -282,31 +449,24 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
 
                             children: [
                               Icon(
-                                Icons.circle,
-                                size: 9,
-
-                                color: isSuspended
-                                    ? Colors.orange
+                                isSuspended
+                                    ? Icons.block_outlined
                                     : isActive
-                                    ? Colors.green
-                                    : Colors.red,
+                                    ? Icons.check_circle_outline
+                                    : Icons.cancel_outlined,
+
+                                size: 15,
+
+                                color: statusColor,
                               ),
 
-                              const SizedBox(width: 7),
+                              const SizedBox(width: 6),
 
                               Text(
-                                isSuspended
-                                    ? "Suspend"
-                                    : isActive
-                                    ? "Aktif"
-                                    : "Tidak Aktif",
+                                statusText,
 
                                 style: TextStyle(
-                                  color: isSuspended
-                                      ? Colors.orange
-                                      : isActive
-                                      ? Colors.green
-                                      : Colors.red,
+                                  color: statusColor,
 
                                   fontWeight: FontWeight.bold,
 
@@ -341,6 +501,10 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 14,
                                 ),
+
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
 
                               onPressed: () async {
@@ -353,17 +517,14 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
                                   ),
                                 );
 
-                                // Jangan refresh kalau
-                                // halaman sudah tidak ada.
                                 if (!mounted) return;
 
-                                // Ambil data terbaru setelah
-                                // kembali dari detail.
                                 await _refreshResellers();
                               },
 
                               icon: const Icon(
-                                Icons.visibility,
+                                Icons.visibility_outlined,
+
                                 color: Colors.white,
                               ),
 
@@ -372,6 +533,7 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
 
                                 style: TextStyle(
                                   color: Colors.white,
+
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -384,6 +546,80 @@ class _ResellerManagementPageState extends State<ResellerManagementPage> {
                 },
               ),
             ),
+    );
+  }
+
+  // ==========================================================
+  // STAT CARD
+  // ==========================================================
+  Widget _statCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.035),
+
+        borderRadius: BorderRadius.circular(15),
+
+        border: Border.all(color: AuthTheme.border.withValues(alpha: 0.75)),
+      ),
+
+      child: Column(
+        children: [
+          // icon
+          Container(
+            width: 34,
+            height: 34,
+
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.10),
+
+              borderRadius: BorderRadius.circular(10),
+            ),
+
+            child: Icon(icon, color: iconColor, size: 19),
+          ),
+
+          const SizedBox(height: 8),
+
+          // angka
+          Text(
+            value,
+
+            maxLines: 1,
+
+            overflow: TextOverflow.ellipsis,
+
+            style: const TextStyle(
+              color: AuthTheme.title,
+
+              fontSize: 17,
+
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 2),
+
+          // label
+          Text(
+            title,
+
+            style: const TextStyle(
+              color: AuthTheme.subtitle,
+
+              fontSize: 10,
+
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

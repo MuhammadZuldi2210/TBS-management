@@ -46,6 +46,21 @@ class UserManagementService {
   }
 
   // ==============================
+  // RESET PASSWORD USER
+  // SUPER ADMIN
+  // ==============================
+
+  Future<void> resetPassword({
+    required String userId,
+    required String newPassword,
+  }) async {
+    await DioClient.dio.put(
+      "/users/$userId/reset-password",
+      data: {"password": newPassword, "confirmPassword": newPassword},
+    );
+  }
+
+  // ==============================
   // TRANSFER USER
   // ==============================
 

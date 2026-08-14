@@ -37,6 +37,12 @@ class AuthProvider extends ChangeNotifier {
   List _admins = [];
 
   // ==========================================
+  // AKUN TERSIMPAN
+  // ==========================================
+
+  List<Map<String, dynamic>> _savedAccounts = [];
+
+  // ==========================================
   // GETTER
   // ==========================================
 
@@ -68,6 +74,9 @@ class AuthProvider extends ChangeNotifier {
 
   int get coinBalance => _coinBalance;
 
+  // Getter akun tersimpan
+  List<Map<String, dynamic>> get savedAccounts => _savedAccounts;
+
   // ==========================================
   // LOGIN
   // ==========================================
@@ -80,7 +89,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Request login
+      // ==========================================
+      // REQUEST LOGIN
+      // ==========================================
+
       final data = await _authService.login(email: email, password: password);
 
       // ==========================================
@@ -113,7 +125,7 @@ class AuthProvider extends ChangeNotifier {
       // Phone
       _phone = user["phone"];
 
-      // coin
+      // Coin
       _coinBalance = user["coinBalance"] ?? 0;
 
       // ==========================================
@@ -135,6 +147,22 @@ class AuthProvider extends ChangeNotifier {
       // ==========================================
 
       await SecureStorage.saveToken(_token!);
+
+      // ==========================================
+      // SIMPAN AKUN LOGIN
+      // ==========================================
+
+      await SecureStorage.saveAccount(
+        name: _name ?? "Pengguna",
+        email: _email ?? email,
+        password: password,
+      );
+
+      // ==========================================
+      // UPDATE DAFTAR AKUN
+      // ==========================================
+
+      await loadSavedAccounts();
 
       _isLoggedIn = true;
     } catch (e) {
@@ -159,6 +187,26 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ==========================================
+  // LOAD AKUN TERSIMPAN
+  // ==========================================
+
+  Future<void> loadSavedAccounts() async {
+    _savedAccounts = await SecureStorage.getSavedAccounts();
+
+    notifyListeners();
+  }
+
+  // ==========================================
+  // HAPUS AKUN TERSIMPAN
+  // ==========================================
+
+  Future<void> removeSavedAccount(String email) async {
+    await SecureStorage.deleteSavedAccount(email);
+
+    await loadSavedAccounts();
+  }
+
+  // ==========================================
   // AMBIL DAFTAR ADMIN
   // ==========================================
 
@@ -175,17 +223,24 @@ class AuthProvider extends ChangeNotifier {
   // ==========================================
   // REFRESH PROFILE
   // ==========================================
+
   Future refreshProfile() async {
     try {
       final response = await _authService.getProfile();
 
       if (response["success"] == true) {
         final user = response["user"];
+
         _userId = user["_id"]?.toString();
+
         _role = user["role"];
+
         _ownerId = user["ownerId"]?.toString();
+
         _name = user["name"];
+
         _email = user["email"];
+
         _phone = user["phone"];
 
         _coinBalance = user["coinBalance"] ?? 0;
@@ -210,10 +265,20 @@ class AuthProvider extends ChangeNotifier {
   // ==========================================
 
   Future logout() async {
-    // Hapus token
+    // ==========================================
+    // HAPUS TOKEN SAJA
+    // ==========================================
+    //
+    // AKUN TERSIMPAN TIDAK DIHAPUS.
+    // Jadi setelah logout email dan password
+    // masih tersedia di halaman login.
+
     await SecureStorage.deleteToken();
 
-    // Reset state
+    // ==========================================
+    // RESET STATE
+    // ==========================================
+
     _isLoggedIn = false;
 
     _token = null;
@@ -234,6 +299,13 @@ class AuthProvider extends ChangeNotifier {
 
     _isModuleExpired = false;
 
+    _errorMessage = null;
+
+    _successMessage = null;
+
+    // Pastikan akun tersimpan tetap tersedia
+    await loadSavedAccounts();
+
     notifyListeners();
   }
 
@@ -243,7 +315,16 @@ class AuthProvider extends ChangeNotifier {
 
   Future initAuth() async {
     try {
-      // Ambil token
+      // ==========================================
+      // LOAD AKUN TERSIMPAN
+      // ==========================================
+
+      await loadSavedAccounts();
+
+      // ==========================================
+      // AMBIL TOKEN
+      // ==========================================
+
       final storedToken = await SecureStorage.getToken();
 
       if (storedToken == null) {
@@ -285,7 +366,7 @@ class AuthProvider extends ChangeNotifier {
         // Phone
         _phone = user["phone"];
 
-        // coin
+        // Coin
         _coinBalance = user["coinBalance"] ?? 0;
 
         // ==========================================
@@ -303,7 +384,12 @@ class AuthProvider extends ChangeNotifier {
         await logout();
       }
     } catch (e) {
-      await logout();
+      // Jangan hapus akun tersimpan.
+      await SecureStorage.deleteToken();
+
+      _isLoggedIn = false;
+
+      _token = null;
 
       debugPrint("INIT AUTH ERROR: $e");
     }

@@ -123,6 +123,9 @@ class _MyUserPageState extends State<MyUserPage> {
     return Scaffold(
       backgroundColor: AuthTheme.background,
 
+      // =========================================================
+      // APP BAR
+      // =========================================================
       appBar: AppBar(
         backgroundColor: AuthTheme.background,
         elevation: 0,
@@ -151,14 +154,17 @@ class _MyUserPageState extends State<MyUserPage> {
         ),
       ),
 
+      // =========================================================
+      // BODY
+      // =========================================================
       body: Padding(
         padding: const EdgeInsets.all(20),
 
         child: Column(
           children: [
-            // =========================================================
+            // =====================================================
             // BUTTON TAMBAH USER
-            // =========================================================
+            // =====================================================
             SizedBox(
               width: double.infinity,
 
@@ -197,16 +203,18 @@ class _MyUserPageState extends State<MyUserPage> {
 
             const SizedBox(height: 25),
 
-            // =========================================================
+            // =====================================================
             // DAFTAR USER
-            // =========================================================
+            // =====================================================
             Expanded(
               child: Container(
                 width: double.infinity,
 
                 decoration: BoxDecoration(
                   color: AuthTheme.cardBackground,
+
                   borderRadius: BorderRadius.circular(20),
+
                   border: Border.all(color: AuthTheme.border),
 
                   boxShadow: [
@@ -368,18 +376,37 @@ class _MyUserPageState extends State<MyUserPage> {
                                             ),
                                           ),
 
-                                          const SizedBox(height: 4),
+                                          const SizedBox(height: 5),
 
-                                          Text(
-                                            email,
+                                          // =================================
+                                          // EMAIL
+                                          // =================================
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.email_outlined,
+                                                size: 15,
+                                                color: AuthTheme.blueGlow,
+                                              ),
 
-                                            maxLines: 1,
+                                              const SizedBox(width: 6),
 
-                                            overflow: TextOverflow.ellipsis,
+                                              Expanded(
+                                                child: Text(
+                                                  email,
 
-                                            style: const TextStyle(
-                                              color: AuthTheme.subtitle,
-                                            ),
+                                                  maxLines: 1,
+
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+
+                                                  style: const TextStyle(
+                                                    color: AuthTheme.subtitle,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -390,54 +417,114 @@ class _MyUserPageState extends State<MyUserPage> {
                                 const SizedBox(height: 20),
 
                                 // =====================================
-                                // PHONE
+                                // INFORMASI USER
                                 // =====================================
-                                Text(
-                                  "No HP : $phone",
+                                Container(
+                                  padding: const EdgeInsets.all(14),
 
-                                  style: const TextStyle(
-                                    color: AuthTheme.title,
-                                    fontWeight: FontWeight.w600,
+                                  decoration: BoxDecoration(
+                                    color: AuthTheme.inputFill,
+
+                                    borderRadius: BorderRadius.circular(14),
+
+                                    border: Border.all(color: AuthTheme.border),
+                                  ),
+
+                                  child: Column(
+                                    children: [
+                                      // ===============================
+                                      // EMAIL
+                                      // ===============================
+                                      _buildInfoRow(
+                                        icon: Icons.email_outlined,
+                                        title: "Email",
+                                        value: email,
+                                      ),
+
+                                      const SizedBox(height: 14),
+
+                                      Divider(
+                                        color: AuthTheme.border,
+                                        height: 1,
+                                      ),
+
+                                      const SizedBox(height: 14),
+
+                                      // ===============================
+                                      // NO HP
+                                      // ===============================
+                                      _buildInfoRow(
+                                        icon: Icons.phone_outlined,
+                                        title: "Nomor HP",
+                                        value: phone,
+                                      ),
+
+                                      const SizedBox(height: 14),
+
+                                      Divider(
+                                        color: AuthTheme.border,
+                                        height: 1,
+                                      ),
+
+                                      const SizedBox(height: 14),
+
+                                      // ===============================
+                                      // EXPIRED
+                                      // ===============================
+                                      _buildInfoRow(
+                                        icon: Icons.calendar_month_outlined,
+                                        title: "Masa Aktif",
+                                        value: expiredAt,
+                                      ),
+                                    ],
                                   ),
                                 ),
 
-                                const SizedBox(height: 10),
-
-                                // =====================================
-                                // EXPIRED
-                                // =====================================
-                                Text(
-                                  "Expired : $expiredAt",
-
-                                  style: const TextStyle(
-                                    color: AuthTheme.title,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 14),
 
                                 // =====================================
                                 // STATUS
                                 // =====================================
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.circle,
-                                      size: 10,
-                                      color: statusColor,
-                                    ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 9,
+                                  ),
 
-                                    const SizedBox(width: 8),
+                                  decoration: BoxDecoration(
+                                    color: statusColor.withValues(alpha: 0.08),
 
-                                    Text(
-                                      statusText,
+                                    borderRadius: BorderRadius.circular(10),
 
-                                      style: TextStyle(
-                                        color: statusColor,
-                                        fontWeight: FontWeight.bold,
+                                    border: Border.all(
+                                      color: statusColor.withValues(
+                                        alpha: 0.20,
                                       ),
                                     ),
-                                  ],
+                                  ),
+
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+
+                                    children: [
+                                      Icon(
+                                        Icons.circle,
+                                        size: 9,
+                                        color: statusColor,
+                                      ),
+
+                                      const SizedBox(width: 8),
+
+                                      Text(
+                                        statusText,
+                                        style: TextStyle(
+                                          color: statusColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
 
                                 const SizedBox(height: 20),
@@ -505,6 +592,65 @@ class _MyUserPageState extends State<MyUserPage> {
           ],
         ),
       ),
+    );
+  }
+
+  // =========================================================
+  // INFO ROW
+  // =========================================================
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+
+          decoration: BoxDecoration(
+            color: AuthTheme.blueGlow.withValues(alpha: 0.10),
+
+            borderRadius: BorderRadius.circular(10),
+          ),
+
+          child: Icon(icon, color: AuthTheme.blueGlow, size: 20),
+        ),
+
+        const SizedBox(width: 12),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              Text(
+                title,
+
+                style: const TextStyle(color: AuthTheme.subtitle, fontSize: 11),
+              ),
+
+              const SizedBox(height: 3),
+
+              Text(
+                value,
+
+                maxLines: 1,
+
+                overflow: TextOverflow.ellipsis,
+
+                style: const TextStyle(
+                  color: AuthTheme.title,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

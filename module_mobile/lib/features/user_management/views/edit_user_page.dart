@@ -1,11 +1,17 @@
 // import flutter
 import 'package:flutter/material.dart';
 
+// import provider
+import 'package:provider/provider.dart';
+
 // dio client
 import '../../../core/api/dio_client.dart';
 
 // auth theme
 import '../../../core/theme/auth_theme.dart';
+
+// auth provider
+import '../../auth/viewmodels/auth_provider.dart';
 
 class EditUserPage extends StatefulWidget {
   final Map<String, dynamic> user;
@@ -30,7 +36,9 @@ class _EditUserPageState extends State<EditUserPage> {
     super.initState();
 
     nameController = TextEditingController(text: widget.user["name"] ?? "");
+
     emailController = TextEditingController(text: widget.user["email"] ?? "");
+
     phoneController = TextEditingController(text: widget.user["phone"] ?? "");
   }
 
@@ -150,6 +158,14 @@ class _EditUserPageState extends State<EditUserPage> {
   Widget build(BuildContext context) {
     final userName = widget.user["name"] ?? "User";
 
+    // ==========================================================
+    // CEK ROLE LOGIN
+    // ==========================================================
+
+    final authProvider = context.read<AuthProvider>();
+
+    final bool isSuperAdmin = authProvider.role == "super_admin";
+
     return Scaffold(
       backgroundColor: AuthTheme.background,
 
@@ -177,7 +193,6 @@ class _EditUserPageState extends State<EditUserPage> {
 
             const Text(
               "Edit User",
-
               style: TextStyle(
                 color: AuthTheme.title,
                 fontWeight: FontWeight.bold,
@@ -216,9 +231,7 @@ class _EditUserPageState extends State<EditUserPage> {
                   boxShadow: [
                     BoxShadow(
                       color: AuthTheme.blueGlow.withValues(alpha: .20),
-
                       blurRadius: 20,
-
                       offset: const Offset(0, 8),
                     ),
                   ],
@@ -228,7 +241,6 @@ class _EditUserPageState extends State<EditUserPage> {
                   children: [
                     Container(
                       width: 58,
-
                       height: 58,
 
                       decoration: BoxDecoration(
@@ -247,9 +259,7 @@ class _EditUserPageState extends State<EditUserPage> {
 
                           style: const TextStyle(
                             color: Colors.white,
-
                             fontSize: 23,
-
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -268,7 +278,6 @@ class _EditUserPageState extends State<EditUserPage> {
 
                             style: TextStyle(
                               color: Colors.white70,
-
                               fontSize: 13,
                             ),
                           ),
@@ -280,9 +289,7 @@ class _EditUserPageState extends State<EditUserPage> {
 
                             style: const TextStyle(
                               color: Colors.white,
-
                               fontSize: 20,
-
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -296,7 +303,6 @@ class _EditUserPageState extends State<EditUserPage> {
 
                             style: const TextStyle(
                               color: Colors.white70,
-
                               fontSize: 12,
                             ),
                           ),
@@ -317,9 +323,7 @@ class _EditUserPageState extends State<EditUserPage> {
 
                 style: TextStyle(
                   color: AuthTheme.title,
-
                   fontSize: 19,
-
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -416,7 +420,7 @@ class _EditUserPageState extends State<EditUserPage> {
               const SizedBox(height: 30),
 
               // ==========================
-              // BUTTON
+              // BUTTON SIMPAN
               // ==========================
               SizedBox(
                 width: double.infinity,
@@ -458,7 +462,6 @@ class _EditUserPageState extends State<EditUserPage> {
                     child: isLoading
                         ? const SizedBox(
                             width: 22,
-
                             height: 22,
 
                             child: CircularProgressIndicator(
@@ -475,9 +478,7 @@ class _EditUserPageState extends State<EditUserPage> {
                             children: [
                               Icon(
                                 Icons.save_outlined,
-
                                 color: Colors.white,
-
                                 size: 20,
                               ),
 
@@ -488,9 +489,7 @@ class _EditUserPageState extends State<EditUserPage> {
 
                                 style: TextStyle(
                                   color: Colors.white,
-
                                   fontSize: 15,
-
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -500,7 +499,565 @@ class _EditUserPageState extends State<EditUserPage> {
                 ),
               ),
 
+              // ==================================================
+              // RESET PASSWORD
+              // HANYA MUNCUL UNTUK SUPER ADMIN
+              // ==================================================
+              if (isSuperAdmin) ...[
+                const SizedBox(height: 28),
+
+                const Text(
+                  "Keamanan Akun",
+
+                  style: TextStyle(
+                    color: AuthTheme.title,
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                const Text(
+                  "Kelola password akun user.",
+
+                  style: TextStyle(color: AuthTheme.subtitle, fontSize: 13),
+                ),
+
+                const SizedBox(height: 15),
+
+                _buildSecurityCard(),
+              ],
+
               const SizedBox(height: 12),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ==========================================================
+  // SECURITY CARD
+  // ==========================================================
+
+  Widget _buildSecurityCard() {
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(18),
+
+      decoration: BoxDecoration(
+        color: AuthTheme.cardBackground,
+
+        borderRadius: BorderRadius.circular(20),
+
+        border: Border.all(color: AuthTheme.border),
+      ),
+
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+
+                decoration: BoxDecoration(
+                  color: AuthTheme.blueGlow.withValues(alpha: .10),
+
+                  borderRadius: BorderRadius.circular(14),
+                ),
+
+                child: const Icon(
+                  Icons.security_rounded,
+                  color: AuthTheme.blueGlow,
+                  size: 24,
+                ),
+              ),
+
+              const SizedBox(width: 13),
+
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    Text(
+                      "Password User",
+
+                      style: TextStyle(
+                        color: AuthTheme.title,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    SizedBox(height: 4),
+
+                    Text(
+                      "Buat password baru untuk akun user.",
+
+                      style: TextStyle(color: AuthTheme.subtitle, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 17),
+
+          _buildGradientButton(
+            text: "Reset Password",
+            icon: Icons.lock_reset_rounded,
+
+            onPressed: () async {
+              final String? newPassword = await _showResetPasswordDialog(
+                context,
+              );
+
+              if (newPassword == null || newPassword.isEmpty) {
+                return;
+              }
+
+              if (!context.mounted) {
+                return;
+              }
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Reset password user siap digunakan."),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================================
+  // RESET PASSWORD DIALOG
+  // ==========================================================
+
+  Future<String?> _showResetPasswordDialog(BuildContext context) async {
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+
+      builder: (_) {
+        return _ResetPasswordDialog(user: widget.user);
+      },
+    );
+  }
+
+  // ==========================================================
+  // INPUT BUTTON
+  // ==========================================================
+
+  Widget _buildGradientButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AuthTheme.buttonGradient,
+
+          borderRadius: BorderRadius.circular(15),
+
+          boxShadow: [
+            BoxShadow(
+              color: AuthTheme.blueGlow.withValues(alpha: .18),
+
+              blurRadius: 12,
+
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+
+            shadowColor: Colors.transparent,
+
+            padding: const EdgeInsets.symmetric(vertical: 15),
+
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+
+          onPressed: onPressed,
+
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+
+            children: [
+              Icon(icon, color: Colors.white, size: 20),
+
+              const SizedBox(width: 8),
+
+              Text(
+                text,
+
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ==========================================================
+// RESET PASSWORD DIALOG
+// ==========================================================
+
+class _ResetPasswordDialog extends StatefulWidget {
+  final Map<String, dynamic> user;
+
+  const _ResetPasswordDialog({required this.user});
+
+  @override
+  State<_ResetPasswordDialog> createState() => _ResetPasswordDialogState();
+}
+
+class _ResetPasswordDialogState extends State<_ResetPasswordDialog> {
+  late final TextEditingController _passwordController;
+
+  late final TextEditingController _confirmPasswordController;
+
+  bool _obscurePassword = true;
+
+  bool _obscureConfirmPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _passwordController = TextEditingController();
+
+    _confirmPasswordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+
+    super.dispose();
+  }
+
+  void _submit() {
+    final password = _passwordController.text.trim();
+
+    final confirmPassword = _confirmPasswordController.text.trim();
+
+    if (password.isEmpty) {
+      _showError("Password baru wajib diisi.");
+      return;
+    }
+
+    if (password.length < 6) {
+      _showError("Password baru minimal 6 karakter.");
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      _showError("Konfirmasi password wajib diisi.");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showError("Password dan konfirmasi password tidak sama.");
+      return;
+    }
+
+    Navigator.pop(context, password);
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+
+        backgroundColor: Colors.red,
+
+        behavior: SnackBarBehavior.floating,
+
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+
+      child: Container(
+        padding: const EdgeInsets.all(22),
+
+        decoration: BoxDecoration(
+          color: AuthTheme.cardBackground,
+
+          borderRadius: BorderRadius.circular(24),
+
+          border: Border.all(color: AuthTheme.border),
+        ),
+
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+
+            children: [
+              // ==========================
+              // HEADER DIALOG
+              // ==========================
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+
+                    decoration: BoxDecoration(
+                      gradient: AuthTheme.buttonGradient,
+
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+
+                    child: const Icon(
+                      Icons.lock_reset_rounded,
+                      color: Colors.white,
+                      size: 27,
+                    ),
+                  ),
+
+                  const SizedBox(width: 14),
+
+                  const Expanded(
+                    child: Text(
+                      "Reset Password",
+
+                      style: TextStyle(
+                        color: AuthTheme.title,
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: AuthTheme.subtitle,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                "Buat password baru untuk user ini.",
+
+                style: TextStyle(color: AuthTheme.subtitle, fontSize: 12),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ==========================
+              // PASSWORD BARU
+              // ==========================
+              TextField(
+                controller: _passwordController,
+
+                obscureText: _obscurePassword,
+
+                style: const TextStyle(color: AuthTheme.title),
+
+                decoration: InputDecoration(
+                  hintText: "Password baru",
+
+                  filled: true,
+
+                  fillColor: AuthTheme.inputFill,
+
+                  prefixIcon: const Icon(
+                    Icons.lock_outline,
+                    color: AuthTheme.blueGlow,
+                  ),
+
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+
+                      color: AuthTheme.subtitle,
+                    ),
+                  ),
+
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              // ==========================
+              // KONFIRMASI PASSWORD
+              // ==========================
+              TextField(
+                controller: _confirmPasswordController,
+
+                obscureText: _obscureConfirmPassword,
+
+                style: const TextStyle(color: AuthTheme.title),
+
+                onSubmitted: (_) {
+                  _submit();
+                },
+
+                decoration: InputDecoration(
+                  hintText: "Konfirmasi password",
+
+                  filled: true,
+
+                  fillColor: AuthTheme.inputFill,
+
+                  prefixIcon: const Icon(
+                    Icons.lock_outline,
+                    color: AuthTheme.blueGlow,
+                  ),
+
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+
+                      color: AuthTheme.subtitle,
+                    ),
+                  ),
+
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 22),
+
+              // ==========================
+              // BUTTON DIALOG
+              // ==========================
+              Row(
+                children: [
+                  // BATAL
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AuthTheme.subtitle,
+
+                        side: BorderSide(color: AuthTheme.border),
+
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+
+                      child: const Text("Batal"),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // RESET PASSWORD
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: AuthTheme.buttonGradient,
+
+                        borderRadius: BorderRadius.circular(12),
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: AuthTheme.blueGlow.withValues(alpha: .18),
+
+                            blurRadius: 10,
+
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+
+                      child: ElevatedButton(
+                        onPressed: _submit,
+
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+
+                          shadowColor: Colors.transparent,
+
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+
+                        child: const Text(
+                          "Reset Password",
+
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

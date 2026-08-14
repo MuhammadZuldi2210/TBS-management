@@ -168,6 +168,39 @@ class ResellerProvider extends ChangeNotifier {
   }
 
   // ==============================
+  // RESET PASSWORD RESELLER
+  // ==============================
+
+  Future<bool> resetPassword({
+    required String resellerId,
+    required String newPassword,
+  }) async {
+    try {
+      isLoading = true;
+      errorMessage = null;
+      successMessage = null;
+
+      notifyListeners();
+
+      await _resellerService.resetPassword(
+        resellerId: resellerId,
+        newPassword: newPassword,
+      );
+
+      successMessage = "Password reseller berhasil direset";
+
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ==============================
   // SUSPEND RESELLER
   // ==============================
 

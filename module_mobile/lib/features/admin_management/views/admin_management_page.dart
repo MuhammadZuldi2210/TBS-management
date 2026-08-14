@@ -26,6 +26,7 @@ class AdminManagementPage extends StatefulWidget {
 class _AdminManagementPageState extends State<AdminManagementPage> {
   // controller search
   final TextEditingController searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +50,7 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
       appBar: AppBar(
         backgroundColor: AuthTheme.background,
         elevation: 0,
+
         // tombol kembali
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -57,10 +59,13 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
             Navigator.pop(context);
           },
         ),
+
         title: Row(
           children: [
             Image.asset("assets/logos/TBS.png", height: 30),
+
             const SizedBox(width: 10),
+
             const Text(
               "Kelola Admin",
               style: TextStyle(
@@ -80,20 +85,35 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
-            // tombol tambah admin
+            // ==================================================
+            // TOMBOL TAMBAH ADMIN
+            // ==================================================
             SizedBox(
               width: double.infinity,
 
               child: Container(
                 decoration: BoxDecoration(
                   gradient: AuthTheme.buttonGradient,
+
                   borderRadius: BorderRadius.circular(20),
+
+                  boxShadow: [
+                    BoxShadow(
+                      color: AuthTheme.blueGlow.withValues(alpha: 0.15),
+
+                      blurRadius: 15,
+
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
 
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
+
                     shadowColor: Colors.transparent,
+
                     padding: const EdgeInsets.symmetric(vertical: 15),
                   ),
 
@@ -108,6 +128,7 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
 
                   label: const Text(
                     "Tambah Admin",
+
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -119,20 +140,24 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
 
             const SizedBox(height: 25),
 
-            const SizedBox(height: 20),
-
-            // daftar admin
+            // ==================================================
+            // DAFTAR ADMIN
+            // ==================================================
             Expanded(
               child: Container(
                 width: double.infinity,
 
                 decoration: BoxDecoration(
                   color: AuthTheme.cardBackground,
+
                   borderRadius: BorderRadius.circular(20),
+
                   border: Border.all(color: AuthTheme.border),
+
                   boxShadow: [
                     BoxShadow(
                       color: AuthTheme.blueGlow.withValues(alpha: 0.15),
+
                       blurRadius: 18,
                     ),
                   ],
@@ -150,10 +175,13 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+
                           children: [
                             Icon(
                               Icons.admin_panel_settings_outlined,
+
                               size: 60,
+
                               color: AuthTheme.subtitle,
                             ),
 
@@ -161,9 +189,12 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
 
                             const Text(
                               "Belum ada data admin",
+
                               style: TextStyle(
                                 color: AuthTheme.title,
+
                                 fontSize: 16,
+
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -172,8 +203,10 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
 
                             const Text(
                               "Silahkan tambahkan admin baru",
+
                               style: TextStyle(
                                 color: AuthTheme.subtitle,
+
                                 fontSize: 14,
                               ),
                             ),
@@ -181,26 +214,81 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
                         ),
                       );
                     }
-                    // list admin
+
+                    // ==================================================
+                    // LIST ADMIN
+                    // ==================================================
                     return ListView.builder(
                       padding: const EdgeInsets.all(15),
+
                       itemCount: provider.adminList.length,
+
                       itemBuilder: (context, index) {
                         final admin = provider.adminList[index];
 
+                        final String name = admin["name"]?.toString() ?? "-";
+
+                        final String email = admin["email"]?.toString() ?? "-";
+
+                        final String initial = name.isNotEmpty && name != "-"
+                            ? name[0].toUpperCase()
+                            : "A";
+
+                        final bool isSuspended =
+                            admin["accountStatus"] == "suspended";
+
+                        final bool isActive = admin["isActive"] == true;
+
+                        final Color statusColor = isSuspended
+                            ? Colors.orange
+                            : isActive
+                            ? Colors.green
+                            : Colors.red;
+
+                        final String statusText = isSuspended
+                            ? "Suspend"
+                            : isActive
+                            ? "Aktif"
+                            : "Tidak Aktif";
+
+                        final int coinBalance =
+                            int.tryParse(
+                              admin["coinBalance"]?.toString() ?? "0",
+                            ) ??
+                            0;
+
+                        final int totalReseller =
+                            int.tryParse(
+                              admin["totalReseller"]?.toString() ?? "0",
+                            ) ??
+                            0;
+
+                        final int totalUser =
+                            int.tryParse(
+                              admin["totalUser"]?.toString() ?? "0",
+                            ) ??
+                            0;
+
                         return Container(
                           margin: const EdgeInsets.only(bottom: 18),
+
                           padding: const EdgeInsets.all(18),
+
                           decoration: BoxDecoration(
                             color: AuthTheme.cardBackground,
+
                             borderRadius: BorderRadius.circular(22),
+
                             border: Border.all(color: AuthTheme.border),
+
                             boxShadow: [
                               BoxShadow(
                                 color: AuthTheme.blueGlow.withValues(
                                   alpha: 0.15,
                                 ),
+
                                 blurRadius: 20,
+
                                 offset: const Offset(0, 8),
                               ),
                             ],
@@ -210,6 +298,9 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
 
                             children: [
+                              // ==================================================
+                              // PROFILE ADMIN
+                              // ==================================================
                               Row(
                                 children: [
                                   Container(
@@ -218,16 +309,29 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
 
                                     decoration: BoxDecoration(
                                       gradient: AuthTheme.buttonGradient,
+
                                       shape: BoxShape.circle,
+
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AuthTheme.blueGlow.withValues(
+                                            alpha: 0.20,
+                                          ),
+
+                                          blurRadius: 12,
+                                        ),
+                                      ],
                                     ),
 
                                     child: Center(
                                       child: Text(
-                                        admin["name"][0].toUpperCase(),
+                                        initial,
 
                                         style: const TextStyle(
                                           color: Colors.white,
+
                                           fontSize: 22,
+
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -243,21 +347,51 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
 
                                       children: [
                                         Text(
-                                          admin["name"],
+                                          name,
+
+                                          maxLines: 1,
+
+                                          overflow: TextOverflow.ellipsis,
+
                                           style: const TextStyle(
                                             color: AuthTheme.title,
+
                                             fontSize: 18,
+
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
 
-                                        const SizedBox(height: 4),
+                                        const SizedBox(height: 5),
 
-                                        Text(
-                                          admin["email"],
-                                          style: const TextStyle(
-                                            color: AuthTheme.subtitle,
-                                          ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.email_outlined,
+
+                                              size: 14,
+
+                                              color: AuthTheme.subtitle,
+                                            ),
+
+                                            const SizedBox(width: 5),
+
+                                            Expanded(
+                                              child: Text(
+                                                email,
+
+                                                maxLines: 1,
+
+                                                overflow: TextOverflow.ellipsis,
+
+                                                style: const TextStyle(
+                                                  color: AuthTheme.subtitle,
+
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -265,22 +399,25 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
                                 ],
                               ),
 
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 17),
 
+                              // ==================================================
+                              // STATUS
+                              // ==================================================
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
-                                  vertical: 6,
+                                  vertical: 7,
                                 ),
 
                                 decoration: BoxDecoration(
-                                  color: admin["accountStatus"] == "suspended"
-                                      ? Colors.orange.withValues(alpha: 0.15)
-                                      : admin["isActive"] == true
-                                      ? Colors.green.withValues(alpha: 0.15)
-                                      : Colors.red.withValues(alpha: 0.15),
+                                  color: statusColor.withValues(alpha: 0.10),
 
                                   borderRadius: BorderRadius.circular(20),
+
+                                  border: Border.all(
+                                    color: statusColor.withValues(alpha: 0.20),
+                                  ),
                                 ),
 
                                 child: Row(
@@ -288,36 +425,27 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
 
                                   children: [
                                     Icon(
-                                      Icons.circle,
-                                      size: 9,
+                                      isSuspended
+                                          ? Icons.block_outlined
+                                          : isActive
+                                          ? Icons.check_circle_outline
+                                          : Icons.cancel_outlined,
 
-                                      color:
-                                          admin["accountStatus"] == "suspended"
-                                          ? Colors.orange
-                                          : admin["isActive"] == true
-                                          ? Colors.green
-                                          : Colors.red,
+                                      size: 15,
+
+                                      color: statusColor,
                                     ),
 
                                     const SizedBox(width: 6),
 
                                     Text(
-                                      admin["accountStatus"] == "suspended"
-                                          ? "Suspend"
-                                          : admin["isActive"] == true
-                                          ? "Aktif"
-                                          : "Tidak Aktif",
+                                      statusText,
 
                                       style: TextStyle(
-                                        color:
-                                            admin["accountStatus"] ==
-                                                "suspended"
-                                            ? Colors.orange
-                                            : admin["isActive"] == true
-                                            ? Colors.green
-                                            : Colors.red,
+                                        color: statusColor,
 
                                         fontWeight: FontWeight.bold,
+
                                         fontSize: 12,
                                       ),
                                     ),
@@ -325,47 +453,82 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
                                 ),
                               ),
 
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 18),
 
-                              Text(
-                                "Coin : ${admin["coinBalance"]}",
-                                style: const TextStyle(
-                                  color: AuthTheme.title,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              // ==================================================
+                              // STATISTIK ADMIN
+                              // ==================================================
+                              Row(
+                                children: [
+                                  // COIN
+                                  Expanded(
+                                    child: _statCard(
+                                      icon: Icons.monetization_on_outlined,
 
-                              const SizedBox(height: 8),
+                                      iconColor: Colors.amber,
 
-                              Text(
-                                "Reseller : ${admin["totalReseller"]}",
-                                style: const TextStyle(color: AuthTheme.title),
-                              ),
+                                      title: "Coin",
 
-                              const SizedBox(height: 8),
+                                      value: "$coinBalance",
+                                    ),
+                                  ),
 
-                              Text(
-                                "User : ${admin["totalUser"] ?? 0}",
-                                style: const TextStyle(color: AuthTheme.title),
+                                  const SizedBox(width: 10),
+
+                                  // RESELLER
+                                  Expanded(
+                                    child: _statCard(
+                                      icon: Icons.storefront_outlined,
+
+                                      iconColor: AuthTheme.blueGlow,
+
+                                      title: "Reseller",
+
+                                      value: "$totalReseller",
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 10),
+
+                                  // USER
+                                  Expanded(
+                                    child: _statCard(
+                                      icon: Icons.people_outline,
+
+                                      iconColor: Colors.purpleAccent,
+
+                                      title: "User",
+
+                                      value: "$totalUser",
+                                    ),
+                                  ),
+                                ],
                               ),
 
                               const SizedBox(height: 20),
 
+                              // ==================================================
                               // BUTTON DETAIL
+                              // ==================================================
                               Container(
                                 width: double.infinity,
+
                                 decoration: BoxDecoration(
                                   gradient: AuthTheme.buttonGradient,
+
                                   borderRadius: BorderRadius.circular(12),
                                 ),
 
                                 child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
+
                                     shadowColor: Colors.transparent,
+
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 14,
                                     ),
+
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -374,6 +537,7 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
                                   onPressed: () async {
                                     final result = await Navigator.push(
                                       context,
+
                                       MaterialPageRoute(
                                         builder: (_) =>
                                             AdminDetailPage(admin: admin),
@@ -386,14 +550,17 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
                                   },
 
                                   icon: const Icon(
-                                    Icons.visibility,
+                                    Icons.visibility_outlined,
+
                                     color: Colors.white,
                                   ),
 
                                   label: const Text(
                                     "Detail",
+
                                     style: TextStyle(
                                       color: Colors.white,
+
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -410,6 +577,80 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ==========================================================
+  // STAT CARD
+  // ==========================================================
+  Widget _statCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.035),
+
+        borderRadius: BorderRadius.circular(15),
+
+        border: Border.all(color: AuthTheme.border.withValues(alpha: 0.75)),
+      ),
+
+      child: Column(
+        children: [
+          // icon
+          Container(
+            width: 34,
+            height: 34,
+
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.10),
+
+              borderRadius: BorderRadius.circular(10),
+            ),
+
+            child: Icon(icon, color: iconColor, size: 19),
+          ),
+
+          const SizedBox(height: 8),
+
+          // angka
+          Text(
+            value,
+
+            maxLines: 1,
+
+            overflow: TextOverflow.ellipsis,
+
+            style: const TextStyle(
+              color: AuthTheme.title,
+
+              fontSize: 17,
+
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 2),
+
+          // label
+          Text(
+            title,
+
+            style: const TextStyle(
+              color: AuthTheme.subtitle,
+
+              fontSize: 10,
+
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
