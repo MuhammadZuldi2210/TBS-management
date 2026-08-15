@@ -10,8 +10,8 @@ TBS Management is designed to manage users, resellers, administrators, transacti
 
 TBS Management consists of two main components:
 
-* 📱 **Mobile Application** — built with Flutter
-* ⚙️ **Backend API** — built with Node.js and Express.js
+- 📱 **Mobile Application** — built with Flutter
+- ⚙️ **Backend API** — built with Node.js and Express.js
 
 The system implements role-based access control to provide different permissions and management capabilities for each user level.
 
@@ -30,60 +30,60 @@ The system implements role-based access control to provide different permissions
 
 ### 👥 User Management
 
-* Create and manage administrators
-* Create and manage resellers
-* Create and manage users
-* User search and pagination
-* User status management
-* Password management
+- Create and manage administrators
+- Create and manage resellers
+- Create and manage users
+- User search and pagination
+- User status management
+- Password management
 
 ### 💰 Coin Management
 
-* View coin balance
-* Request coin purchases
-* Coin top-up management
-* Coin transactions between management levels
+- View coin balance
+- Request coin purchases
+- Coin top-up management
+- Coin transactions between management levels
 
 ### 📦 Module Management
 
-* Module subscription
-* Module extension
-* Subscription duration management
-* Active and expired user status
+- Module subscription
+- Module extension
+- Subscription duration management
+- Active and expired user status
 
 ### 💳 Transaction Management
 
-* Module extension transactions
-* Coin purchase transactions
-* Coin top-up transactions
-* Pending, approved, and rejected transaction status
-* Transaction history
+- Module extension transactions
+- Coin purchase transactions
+- Coin top-up transactions
+- Pending, approved, and rejected transaction status
+- Transaction history
 
 ### 🔔 Notification System
 
-* User notifications
-* Unread notification count
-* Mark notification as read
-* Mark all notifications as read
-* Delete notifications
+- User notifications
+- Unread notification count
+- Mark notification as read
+- Mark all notifications as read
+- Delete notifications
 
 ### 📊 Dashboard
 
-* User statistics
-* Admin statistics
-* Reseller statistics
-* Active and expired users
-* Transaction statistics
-* Revenue statistics
+- User statistics
+- Admin statistics
+- Reseller statistics
+- Active and expired users
+- Transaction statistics
+- Revenue statistics
 
 ### 🔐 Security
 
-* JWT authentication
-* Role-based access control
-* Password hashing with bcryptjs
-* Secure credential storage
-* API rate limiting
-* HTTP security headers
+- JWT authentication
+- Role-based access control
+- Password hashing with bcryptjs
+- Secure credential storage
+- API rate limiting
+- HTTP security headers
 
 ---
 
@@ -97,15 +97,15 @@ The system implements role-based access control to provide different permissions
   <img src="https://cdn.simpleicons.org/dart/0175C2" width="40" height="40" alt="Dart">
 </p>
 
-* **Flutter**
-* **Dart**
-* Provider
-* Dio
-* Flutter Secure Storage
-* Shared Preferences
-* Google Fonts
-* Flutter SVG
-* Cached Network Image
+- **Flutter**
+- **Dart**
+- Provider
+- Dio
+- Flutter Secure Storage
+- Shared Preferences
+- Google Fonts
+- Flutter SVG
+- Cached Network Image
 
 ### ⚙️ Backend
 
@@ -117,18 +117,18 @@ The system implements role-based access control to provide different permissions
   <img src="https://cdn.simpleicons.org/mongodb/47A248" width="40" height="40" alt="MongoDB">
 </p>
 
-* **Node.js**
-* **Express.js**
-* **MongoDB**
-* Mongoose
-* JSON Web Token (JWT)
-* bcryptjs
-* Helmet
-* CORS
-* Express Rate Limit
-* Compression
-* Morgan
-* node-cron
+- **Node.js**
+- **Express.js**
+- **MongoDB**
+- Mongoose
+- JSON Web Token (JWT)
+- bcryptjs
+- Helmet
+- CORS
+- Express Rate Limit
+- Compression
+- Morgan
+- node-cron
 
 ---
 
@@ -160,9 +160,51 @@ TBS-management/
 
 ## 📸 Screenshots
 
-Screenshots of the TBS Management mobile application will be added here.
+Screenshots of the TBS Management mobile application.
 
-> Screenshots coming soon.
+### 🔐 Authentication
+
+<p align="center">
+  <img src="screenshots/login.png" width="220">
+</p>
+
+### 📊 Dashboards
+
+<p align="center">
+  <img src="screenshots/dashboardsuperadmin.png" width="220">
+  <img src="screenshots/dashboardadminuser.png" width="220">
+  <img src="screenshots/dashboardreseller.png" width="220">
+</p>
+
+### 👥 User & Admin Management
+
+<p align="center">
+  <img src="screenshots/kelolaadmin.png" width="220">
+  <img src="screenshots/admindetail.png" width="220">
+  <img src="screenshots/editadmin.png" width="220">
+  <img src="screenshots/kelolareseller.png" width="220">
+</p>
+
+<p align="center">
+  <img src="screenshots/kelolauser.png" width="220">
+  <img src="screenshots/myuser.png" width="220">
+  <img src="screenshots/myreseller.png" width="220">
+  <img src="screenshots/suspend.png" width="220">
+</p>
+
+### 💳 Transactions & Coin Management
+
+<p align="center">
+  <img src="screenshots/transaction.png" width="220">
+  <img src="screenshots/requestcoin.png" width="220">
+</p>
+
+### 🔔 Notifications & Profile
+
+<p align="center">
+  <img src="screenshots/notifikasi.png" width="220">
+  <img src="screenshots/profile.png" width="220">
+</p>
 
 ---
 
