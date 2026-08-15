@@ -208,14 +208,6 @@ Screenshots of the TBS Management mobile application.
 
 ---
 
-## 📦 Demo APK
-
-An Android demo APK will be provided here for portfolio demonstration.
-
-> Demo APK coming soon.
-
----
-
 ## 🔧 Installation
 
 ### 📱 Mobile Application
